@@ -4,4 +4,4 @@
 ![P1m](http://www.smartgizmo.net/wp-content/uploads/2015/10/Lenovo-VIBE-P1m-1.jpg)
 
 * Working:
-- Nothing
+1) Nothing

@@ -1,20 +1,23 @@
 #ifndef BUILD_LK
 #include <linux/string.h>
-#include <linux/kernel.h>
+#include <linux/gpio.h>
+#include <linux/pinctrl/consumer.h>
 #endif
-#include "lcm_drv.h"
 
 #ifdef BUILD_LK
 #include <platform/mt_gpio.h>
-#include <platform/mt_i2c.h> 
-#include <string.h>
-#elif defined(BUILD_UBOOT)
-#include <asm/arch/mt_gpio.h>
+#include <platform/mt_pmic.h>
+#include <platform/mt_i2c.h>
+#include <platform/upmu_common.h>
+#include "ddp_hal.h"
 #else
-#include <mt-plat/mt_gpio.h>
-#include <mt-plat/mt_gpio_core.h>
 #endif
-static LCM_UTIL_FUNCS lcm_util = {0};
+
+#include "lcm_drv.h"
+
+#include <mt-plat/mt_gpio.h>
+#include "cust_gpio_usage.h"
+static LCM_UTIL_FUNCS lcm_util;
 
 #define SET_RESET_PIN(v)    								(lcm_util.set_reset_pin((v)))
 #define MDELAY(n) 											(lcm_util.mdelay(n))
@@ -31,6 +34,7 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 #define write_regs(addr, pdata, byte_nums)					lcm_util.dsi_write_regs(addr, pdata, byte_nums)
 #define read_reg(cmd)										lcm_util.dsi_dcs_read_lcm_reg(cmd)
 #define read_reg_v2(cmd, buffer, buffer_size)   			lcm_util.dsi_dcs_read_lcm_reg_v2(cmd, buffer, buffer_size)    
+
 // ---------------------------------------------------------------------------
 //  Local Constants
 // ---------------------------------------------------------------------------
@@ -39,8 +43,8 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 #define FRAME_WIDTH  										(720)
 #define FRAME_HEIGHT 										(1280)
 #ifndef CONFIG_FPGA_EARLY_PORTING
-#define GPIO_65132_ENP 3//GPIO_LCD_BIAS_ENP_PIN
-#define GPIO_65132_ENN 4//GPIO_LCD_BIAS_ENN_PIN
+#define GPIO_65132_ENP GPIO_LCD_BIAS_ENP_PIN
+#define GPIO_65132_ENN GPIO_LCD_BIAS_ENN_PIN
 #endif
 
 #define REGFLAG_DELAY             								0xFC
@@ -529,6 +533,21 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 	// Bit rate calculation
 	params->dsi.PLL_CLOCK = 229;
+
+	params->dsi.clk_lp_per_line_enable = 0;
+	
+	params->dsi.esd_check_enable = 1;
+	params->dsi.customization_esd_check_enable = 1;
+	params->dsi.lcm_esd_check_table[0].cmd          = 0x09;
+	params->dsi.lcm_esd_check_table[0].count        = 3;
+	params->dsi.lcm_esd_check_table[0].para_list[0] = 0x80;
+	params->dsi.lcm_esd_check_table[0].para_list[1] = 0x73;
+	params->dsi.lcm_esd_check_table[0].para_list[2] = 0x06;
+
+	params->dsi.lcm_esd_check_table[1].cmd		= 0xD9;
+	params->dsi.lcm_esd_check_table[1].count	= 1;
+	params->dsi.lcm_esd_check_table[1].para_list[0] = 0x80;
+
 }
 
 static void lcm_init_power(void)
@@ -577,37 +596,67 @@ static void lcm_resume_power(void)
 #endif
 }
 
+static void set_vsp_vsn_pin(int value)
+{
+	if (value) {
+		mt_set_gpio_out(GPIO_65132_ENP, GPIO_OUT_ONE);
+		MDELAY(15);
+		mt_set_gpio_out(GPIO_65132_ENN, GPIO_OUT_ONE);
+		MDELAY(15);
+	} else {
+		mt_set_gpio_out(GPIO_65132_ENN, GPIO_OUT_ZERO);
+		MDELAY(15);
+		mt_set_gpio_out(GPIO_65132_ENP, GPIO_OUT_ZERO);
+		MDELAY(15);
+	}
+}
+
+static void set_reset_gpio_pin(int value)
+{
+	if(value) {
+		mt_set_gpio_out(GPIO_LCM_RST, GPIO_OUT_ONE);
+	} else {
+		mt_set_gpio_out(GPIO_LCM_RST, GPIO_OUT_ZERO);
+	}
+}
+
 static void lcm_init(void)
 {
 	unsigned char cmd = 0x0;
 	unsigned char data = 0x0a;
 	int ret=0;
-	lcm_util.set_gpio_out(3, GPIO_OUT_ZERO);
-    MDELAY(15);
-    lcm_util.set_gpio_out(4, GPIO_OUT_ZERO);
+
+#ifndef CONFIG_FPGA_EARLY_PORTING
+	set_vsp_vsn_pin(1);
+#endif
+
+#ifdef GPIO_LCD_MAKER_ID
+	mt_set_gpio_mode(GPIO_LCD_MAKER_ID, GPIO_LCD_MAKER_ID_M_GPIO);
+	mt_set_gpio_pull_enable(GPIO_LCD_MAKER_ID, GPIO_PULL_ENABLE);
+	mt_set_gpio_dir(GPIO_LCD_MAKER_ID, GPIO_DIR_IN);
+#endif
+	
 	lcm_debug("%s %d\n", __func__,__LINE__);
 //	SET_RESET_PIN(0);
-	lcm_util.set_gpio_out(146, GPIO_OUT_ONE);
+	set_reset_gpio_pin(0);
 	MDELAY(5);
-	lcm_util.set_gpio_out(146, GPIO_OUT_ZERO);
-//	set_reset_gpio_pin(1);
+//	SET_RESET_PIN(1);
+	set_reset_gpio_pin(1);
 	MDELAY(125);
-	//push_table(lcm_init_setting, sizeof(lcm_init_setting) / sizeof(struct LCM_setting_table), 1);
+//	push_table(lcm_init_setting, sizeof(lcm_init_setting) / sizeof(struct LCM_setting_table), 1);
 	init_lcm_registers();
 }
 
 static void lcm_suspend(void)
 {
-	//push_table(lcm_sleep_in_setting, sizeof(lcm_sleep_in_setting) / sizeof(struct LCM_setting_table), 1);  
+	push_table(lcm_sleep_in_setting, sizeof(lcm_sleep_in_setting) / sizeof(struct LCM_setting_table), 1);  
 	MDELAY(10);
 
-	lcm_util.set_gpio_out(146, GPIO_OUT_ONE);
-//	set_reset_gpio_pin(0);
+//	SET_RESET_PIN(0);
+	set_reset_gpio_pin(0);
 	MDELAY(10);
 
-	lcm_util.set_gpio_out(3, GPIO_OUT_ONE);
-    MDELAY(15);
-    lcm_util.set_gpio_out(4, GPIO_OUT_ONE);
+	set_vsp_vsn_pin(0);
 }
 
 static void lcm_resume(void)
@@ -659,19 +708,18 @@ static unsigned int lcm_compare_id(void)
 	unsigned int data_array[2];
 	unsigned char buffer;
 	unsigned int array[16];
-	lcm_util.set_gpio_out(3, GPIO_OUT_ZERO);
-    MDELAY(15);
-    lcm_util.set_gpio_out(4, GPIO_OUT_ZERO);
+
+#ifndef CONFIG_FPGA_EARLY_PORTING
+	set_vsp_vsn_pin(1);
+#endif
 	lcm_debug("%s %d\n", __func__,__LINE__);
 
-    lcm_util.set_gpio_out(146, GPIO_OUT_ZERO);
-	//set_reset_gpio_pin(1);	
-    MDELAY(5);
-    lcm_util.set_gpio_out(146, GPIO_OUT_ONE);
-	//set_reset_gpio_pin(0);
+	set_reset_gpio_pin(1);	
+  MDELAY(5);
+	set_reset_gpio_pin(0);
 	MDELAY(10);
-	lcm_util.set_gpio_out(146, GPIO_OUT_ZERO);
-	//set_reset_gpio_pin(1);
+//	SET_RESET_PIN(1);
+	set_reset_gpio_pin(1);
 	MDELAY(125);
 
 	data_array[0]= 0x00043902;
@@ -700,6 +748,37 @@ static unsigned int lcm_compare_id(void)
 	return (buffer == HX8394D_HD720_ID ? 1 : 0);
 
 }
+
+#if 0
+static unsigned int lcm_esd_check(void)
+{
+  #ifndef BUILD_LK
+
+	if(lcm_esd_test)
+	{
+		lcm_esd_test = FALSE;
+		return TRUE;
+	}
+
+	char  buffer;
+	read_reg_v2(0x0a, &buffer, 1);
+	printk("%s, kernel debug: reg = 0x%08x\n", __func__, buffer);
+
+	return FALSE;
+	
+#else
+	return FALSE;
+#endif
+
+}
+
+static unsigned int lcm_esd_recover(void)
+{
+	lcm_init();
+
+	return TRUE;
+}
+#endif
 
 static void* lcm_switch_mode(int mode)
 {

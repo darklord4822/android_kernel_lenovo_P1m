@@ -160,6 +160,26 @@ config MTK_LCM_PHYSICAL_ROTATION_HW
 	  Enable it when LCM hardware is intalled upside down,
 	  and you need to rotate the display content to adapting.
 
+config MTK_NXP_TFA9897
+	bool "MTK_NXP_TFA9897"
+	default n
+	help
+	  fix sound
+
+config WT_BRIGHTNESS_MAPPING_WITH_LCM
+        tristate "WT_BRIGHTNESS_MAPPING_WITH_LCM"
+        default n
+config WT_LCD_BACKLIGHT_DELAY_100MS
+        tristate "WT_LCD_BACKLIGHT_DELAY_100MS"
+       default n
+#flashlight
+config WT_CUST_TORCH_FLASHLIGHT
+	bool "Wingtech custom torch flashlight"
+	depends on MTK_LEDS
+config WT_BACKLIGHT_DISABLE_WITH_NOLCM	  
+       bool "WT_BACKLIGHT_DISABLE_WITH_NOLCM"
+       default n
+
 config TABLET_PROJECT
 	bool "IS_TABLET_PROJECT"
 	default n

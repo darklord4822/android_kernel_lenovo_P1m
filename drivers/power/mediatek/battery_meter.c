@@ -1964,6 +1964,17 @@ void sw_oam_init_v2(void)
 }
 #endif
 
+unsigned int UbVbat=0;  
+
+//+Other_platform_add huangfusheng.wt ADD 20150604 add debug info
+unsigned int batt_hw_ocv=0;//brian-add
+unsigned int batt_sw_soc=0;//brian-add
+unsigned int batt_hw_soc=0;//brian-add
+unsigned int batt_rtc_soc=0;//brian-add
+unsigned int batt_ub_vbat=0;
+unsigned int batt_ub_soc=0;
+//-Other_platform_add huangfusheng.wt ADD 20150604 add debug info
+
 void dod_init(void)
 {
 #if defined(SOC_BY_HW_FG)
@@ -1976,6 +1987,21 @@ void dod_init(void)
 	/* use get_hw_ocv----------------------------------------------------------------- */
 	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_OCV, &gFG_voltage);
 	gFG_capacity_by_v = fgauge_read_capacity_by_v(gFG_voltage);
+
+	//+Other_platform_add huangfusheng.wt ADD 20150604 add debug info
+    batt_hw_ocv=gFG_voltage;
+    batt_sw_soc=gFG_capacity_by_v_init;
+    batt_hw_soc=gFG_capacity_by_v;
+	batt_ub_vbat = UbVbat; //debug
+   //-Other_platform_add huangfusheng.wt ADD 20150604 add debug info
+	if(abs(UbVbat-gFG_voltage)>30) 
+	{ 
+		bm_print(BM_LOG_CRTI,"~~Set hw_ocv(%d) to UbVbat(%d) \n ",gFG_voltage,UbVbat); 
+		gFG_voltage = UbVbat;
+		gFG_capacity_by_v = fgauge_read_capacity_by_v(gFG_voltage);
+
+		batt_ub_soc = gFG_capacity_by_v; //Other_platform_add huangfusheng.wt ADD 20150604 add debug info
+	} 
 
 	bm_print(BM_LOG_CRTI, "[FGADC] get_hw_ocv=%d, HW_SOC=%d, SW_SOC = %d\n",
 		 gFG_voltage, gFG_capacity_by_v, gFG_capacity_by_v_init);
@@ -1998,6 +2024,7 @@ void dod_init(void)
 	g_rtc_fg_soc = gFG_capacity_by_v;
 #else
 	g_rtc_fg_soc = get_rtc_spare_fg_value();
+    batt_rtc_soc = g_rtc_fg_soc; // Other_platform_add huangfusheng.wt ADD 20150604 add debug info
 #endif
 
 
@@ -2909,6 +2936,10 @@ void fgauge_algo_run(void)
 	} else {
 		volt_mode_update_timer++;
 	}
+
+//+Other_platform_add huangfusheng.wt ADD 20150604 add debug info	
+bm_print(BM_LOG_CRTI,"batt_hw_ocv=%d,batt_ub_vbat=%d,batt_sw_soc=%d,batt_hw_soc=%d,batt_rtc_soc=%d,batt_ub_soc=%d\n",batt_hw_ocv,batt_ub_vbat,batt_sw_soc,batt_hw_soc,batt_rtc_soc,batt_ub_soc);//brian-debug
+//-Other_platform_add huangfusheng.wt ADD 20150604 add debug info
 
 /* 5. Logging */
 	bm_print(BM_LOG_CRTI,

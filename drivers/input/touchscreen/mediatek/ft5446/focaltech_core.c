@@ -1,66 +1,3 @@
-/*
- *
- * FocalTech ftxxxx TouchScreen driver.
- *
- * Copyright (c) 2010-2015, Focaltech Ltd. All rights reserved.
- *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- */
-
-/*******************************************************************************
-*
-* File Name: Ftxxxx_ts.c
-*
-*    Author: Tsai HsiangYu
-*
-*   Created: 2015-03-02
-*
-*  Abstract:
-*
-* Reference:
-*
-*******************************************************************************/
-
-/*******************************************************************************
-* 1.Included header files
-*******************************************************************************/
-/*
-///user defined include header files
-#include <linux/i2c.h>
-#include <linux/input.h>
-//#include <linux/earlysuspend.h>
-#include <linux/delay.h>
-#include <linux/slab.h>
-#include <linux/interrupt.h>
-#include <linux/irq.h>
-#include <linux/kernel.h>
-#include <linux/semaphore.h>
-#include <linux/mutex.h>
-#include <linux/module.h>
-#include <linux/syscalls.h>
-#include <linux/unistd.h>
-#include <linux/uaccess.h>
-#include <linux/fs.h>
-#include <linux/string.h>
-#include <linux/timer.h>
-#include <linux/input/mt.h>
-#include <linux/switch.h>
-#include <linux/gpio.h>
-*/
-
-/*
- *#include "tpd.h"
- *#include "tpd_custom_fts.h"
- */
-
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/sched.h>
@@ -80,6 +17,14 @@
 #include <mach/battery_common.h>
 #include "../../../../misc/mediatek/alsps/epl8801/epl8801.h"
 #endif
+
+#if CTP_CHARGER_DETECT
+#include <battery_common.h>
+
+u8 prv_charger_status = 0;
+u8 current_charger_status = 0;
+#endif
+
 /*******************************************************************************
 * 2.Private constant and macro definitions using #define
 *******************************************************************************/
@@ -133,14 +78,16 @@ u8 esd_running;
 #endif
 
 int tp_button_flag = 0;
-/*
- *#ifdef FTS_CTL_IIC
- *	#include "focaltech_ctl.h"
- *#endif
- *#ifdef SYSFS_DEBUG
- *	#include "focaltech_ex_fun.h"
- *#endif
- */
+struct tp_module_info tp_info;
+struct i2c_client *global_i2c_client = NULL;
+
+
+#ifdef FTS_CTL_IIC
+#include "focaltech_ctl.h"
+#endif
+#ifdef SYSFS_DEBUG
+#include "focaltech_ex_fun.h"
+#endif
 
 /*PROXIMITY*/
 #ifdef TPD_PROXIMITY
@@ -277,6 +224,7 @@ static bool  is_turnoff_checkesd = false;
 int up_flag = 0, up_count = 0;
 static int tpd_flag = 0;
 static int tpd_halt = 0;
+static int p_point_num = 0;
 
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
 /*
@@ -300,11 +248,11 @@ extern void mt_eint_registration(unsigned int eint_num, unsigned int flow, void 
 static const struct i2c_device_id fts_tpd_id[] = {{"fts", 0}, {}};
 
 static const struct of_device_id tpd_of_match[] = {
-	{.compatible = "mediatek,cap_touch"},
+	{.compatible = "mediatek,cap_touch_cust"},
 	{},
 };
 
-unsigned short force[] = {1, 0x70 >> 1, I2C_CLIENT_END, I2C_CLIENT_END};
+unsigned short force[] = {3, 0x70 >> 1, I2C_CLIENT_END, I2C_CLIENT_END};
 static const unsigned short *const forces[] = { force, NULL };
 
 static struct i2c_driver tpd_i2c_driver = {
@@ -1504,6 +1452,10 @@ static int tpd_enable_ps(int enable)
 		 */
 	}
 
+#if CTP_CHARGER_DETECT
+	tp_charger_detect_op();
+#endif
+
 	printk("[proxi_fts]read: 999 0xb0's value is 0x%02X\n", state);
 
 	if (enable) {
@@ -1596,6 +1548,17 @@ int tpd_ps_operate(void *self, uint32_t command, void *buff_in, int size_in,
 }
 #endif
 
+#if CTP_CHARGER_DETECT
+void tp_charger_detect_op(void){
+	current_charger_status = (u8)bat_is_charger_exist();
+	//FT_CTP_DEBUG("charger_status:%d", current_charger_status);
+	if(current_charger_status != prv_charger_status){
+		prv_charger_status = current_charger_status;
+		fts_write_reg(global_i2c_client,0x8B,current_charger_status);
+	}
+}
+#endif
+
 /************************************************************************
 * Name: touch_event_handler
 * Brief: interrupt event from TP, and read/report data to Android system
@@ -1625,6 +1588,10 @@ static int touch_event_handler(void *unused)
 		wait_event_interruptible(waiter, tpd_flag != 0);
 		tpd_flag = 0;
 		set_current_state(TASK_RUNNING);
+
+#if CTP_CHARGER_DETECT
+		tp_charger_detect_op();
+#endif
 
 #if FTS_GESTRUE_EN
 		if (fts_gesture_status) {
@@ -1815,6 +1782,8 @@ static int __devinit tpd_probe(struct i2c_client *client, const struct i2c_devic
 	char data;
 	int err = 0;
 	int reset_count = 0;
+	unsigned char uc_reg_value;
+	unsigned char uc_reg_addr;
 #ifdef TPD_PROXIMITY
 	int err;
 	struct hwmsen_object obj_ps;
@@ -1848,8 +1817,6 @@ reset_proc:
 	 *mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_DOWN);
 	 */
 
-	msleep(200);
-
 	err = i2c_smbus_read_i2c_block_data(fts_i2c_client, 0x00, 1, &data);
 	/*
 	 *if auto upgrade fail, it will not read right value next upgrade.
@@ -1868,12 +1835,11 @@ reset_proc:
 		return -1;
 	}
 
-
 	msg_dma_alloct(client);
 
 	fts_init_gpio_hw();
 
-#if 0
+
 	uc_reg_addr = FTS_REG_POINT_RATE;
 	retval = fts_i2c_write(fts_i2c_client, &uc_reg_addr, 1);
 	if (retval < 0) {
@@ -1905,7 +1871,6 @@ reset_proc:
 		printk("mtk_tpd[FTS] Read I2C error! driver NOt load!! CTP chip id is %d.\n", uc_reg_value);
 		goto I2C_FAIL; /*change by lixh10 */
 	}
-#endif
 
 
 
@@ -2376,6 +2341,11 @@ static void tpd_resume(struct device *dev)
 		}
 	}
 #endif
+
+#if CTP_CHARGER_DETECT
+	tp_charger_detect_op();
+#endif
+
 #if FTS_GESTRUE_EN
 	if (fts_gesture_status) {
 		/*fts_write_reg(fts_i2c_client,0xD0,0x00); //only reset can exit */

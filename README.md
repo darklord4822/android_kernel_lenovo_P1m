@@ -1,1 +1,12 @@
-# android_device_lenovo_P1m_3_18
+
+###                                          Kernel Tree for Lenovo P1m (6.0 , 3.18.19)
+
+![P1m](http://www.smartgizmo.net/wp-content/uploads/2015/10/Lenovo-VIBE-P1m-1.jpg)
+
+* Working now:
+1) One of 2 LCM drivers
+2) Touchscreen
+3) Sim Card
+4) headset
+5) part power
+6) and other

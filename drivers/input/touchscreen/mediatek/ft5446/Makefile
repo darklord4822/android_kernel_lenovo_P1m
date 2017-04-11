@@ -2,6 +2,7 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/mach/$(MTK_PLATFORM)/$(ARCH_MTK_
 ccflags-y += -I$(srctree)/arch/arm/mach-$(MTK_PLATFORM)/$(ARCH_MTK_PROJECT)/touchpanel/ft5446/
 ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/ft5446/
 ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/
+#ccflags-y += -I$(srctree)/drivers/misc/mediatek/mt-plat/
 
 obj-y	+=  focaltech_core.o
 obj-y	+=  focaltech_ctl.o

@@ -2015,6 +2015,12 @@ const char *_session_ioctl_spy(unsigned int cmd)
 		return "DISP_IOCTL_WRITE_SW_REG";
 	case DISP_IOCTL_READ_SW_REG:
 		return "DISP_IOCTL_READ_SW_REG";
+	#ifdef CONFIG_WT_GAMMA_PQ_WITH_MULTI_LCM
+	case  DISP_IOCTL_GET_PQSTANDARD_PARAM_FROM_LCDDRV:
+	    return "DISP_IOCTL_GET_PQSTANDARD_PARAM_FROM_LCDDRV";
+	case  DISP_IOCTL_GET_PQVIVID_PARAM_FROM_LCDDRV:
+		return "DISP_IOCTL_GET_PQVIVID_PARAM_FROM_LCDDRV";
+	#endif
 
 	default:
 		return "unknown";
@@ -2094,6 +2100,10 @@ long mtk_disp_mgr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case DISP_IOCTL_READ_SW_REG:
 		ret = primary_display_user_cmd(cmd, arg);
 		break;
+	#ifdef CONFIG_WT_GAMMA_PQ_WITH_MULTI_LCM
+	case DISP_IOCTL_GET_PQSTANDARD_PARAM_FROM_LCDDRV: 
+	case DISP_IOCTL_GET_PQVIVID_PARAM_FROM_LCDDRV:
+	#endif
 	default:
 		DISPMSG("[session]ioctl not supported, 0x%08x\n", cmd);
 	}

@@ -397,7 +397,36 @@ void ncp1854_set_aicl_en(unsigned int val)
 				       (unsigned char) (val),
 				       (unsigned char) (CON2_AICL_EN_MASK),
 				       (unsigned char) (CON2_AICL_EN_SHIFT)
-	    );
+	                   );
+}
+
+//CON6
+unsigned int ncp1854_get_vobstol2_status(void)
+{
+    unsigned int ret = 0;
+    unsigned int val = 0;
+
+    ret = ncp1854_read_interface((unsigned char) (NCP1854_CON6),
+	        					  (unsigned char *) (&val),
+							      (unsigned char) (CON6_VOBSTOL2_MASK),
+							      (unsigned char) (CON6_VOBSTOL2_SHIFT)
+							      );
+    return val;
+}
+
+
+//CON7
+unsigned int ncp1854_get_vobstol2_sns_status(void) 
+{
+		unsigned int ret = 0;
+		unsigned int val = 0;
+	
+		ret = ncp1854_read_interface((unsigned char) (NCP1854_CON7),
+									  (&val),
+									  (unsigned char) (CON7_VOBSTOL2_SNS_MASK),
+									  (unsigned char) (CON7_VOBSTOL2_SNS_SHIFT)
+									  );
+		return val;
 }
 
 /* CON8 */
@@ -414,6 +443,103 @@ unsigned int ncp1854_get_vfet_ok(void)
 	return val;
 }
 
+//+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
+void ncp1854_vbusok_mask_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON10),
+                    (unsigned char) (val),
+                    (unsigned char) (CON10_VBUSOK_MASK),
+                    (unsigned char) (CON10_VBUSOK_SHIFT)
+                    );
+}
+
+void ncp1854_tsd_mask_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON10),
+                   (unsigned char) (val),
+                   (unsigned char) (CON10_TSD_MASK),
+                   (unsigned char)(CON10_TSD_SHIFT)
+                   );
+}
+
+void ncp1854_tm2_mask_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON10),
+                   (unsigned char) (val),
+                   (unsigned char) (CON10_TM2_MASK),
+                   (unsigned char) (CON10_TM2_SHIFT)
+                   );
+}
+
+void ncp1854_tm1_mask_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON10),
+                  (unsigned char) (val),
+                  (unsigned char) (CON10_TM1_MASK),
+                  (unsigned char) (CON10_TM1_SHIFT)
+                  );
+}
+
+void ncp1854_tmwarning_mask_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON10),
+                 (unsigned char) (val),
+                 (unsigned char) (CON10_TWARN_MASK),
+                 (unsigned char) (CON10_TWARN_SHIFT)
+                 );
+}
+//- Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
+
+
+
+
+//+Other_platform_modify huangfusheng.wt 20150609 modify for hub detect fail;
+void ncp1854_set_jeita_opt(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON1),
+                (unsigned char) (val),
+                (unsigned char) (CON1_JEITA_OPT_MASK),
+                (unsigned char) (CON1_JEITA_OPT_SHIFT)
+                );
+
+}
+//-Other_platform_modify huangfusheng.wt 20150609 modify for hub detect fail;
+
+//CON13
+
+void ncp1854_set_vobstol1_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON13),
+								(unsigned char) (val),
+								(unsigned char) (CON13_VOBSTOL1_MASK),
+								(unsigned char) (CON13_VOBSTOL1_SHIFT)
+								);
+}
+
+void ncp1854_set_vobstol2_set(unsigned int val)
+{
+    unsigned int ret = 0;
+
+    ret = ncp1854_config_interface((unsigned char) (NCP1854_CON13),
+								(unsigned char) (val),
+								(unsigned char) (CON13_VOBSTOL2_MASK),
+								(unsigned char) (CON13_VOBSTOL2_SHIFT)
+								);
+}
 
 /* CON14 */
 void ncp1854_set_ctrl_vbat(unsigned int val)

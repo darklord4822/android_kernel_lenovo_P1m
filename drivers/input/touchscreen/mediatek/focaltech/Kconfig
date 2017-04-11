@@ -1,0 +1,10 @@
+if TOUCHSCREEN_MTK_FOCALTECH 
+
+config FOCALTECH_POWER_BY_PMIC
+        bool "ft5436 power by pmic &  regulator"
+        default n
+        help
+          selected if power by pmic
+
+          Select here if tp power by pmic
+endif

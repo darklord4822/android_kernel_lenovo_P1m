@@ -1756,6 +1756,9 @@ void disp_get_fb_address(unsigned long *fbVirAddr, unsigned long *fbPhysAddr)
 	*fbPhysAddr = (unsigned long)fbdev->fb_pa_base + mtkfb_fbi->var.yoffset * mtkfb_fbi->fix.line_length;
 }
 
+#ifdef CONFIG_WT_BACKLIGHT_DISABLE_WITH_NOLCM
+int lcm_connected = 1;
+#endif
 char *mtkfb_find_lcm_driver(void)
 {
 
@@ -1766,7 +1769,15 @@ char *mtkfb_find_lcm_driver(void)
 	}
 #else
 	{
-		char *p, *q;
+		char *p, *q,*f;
+#ifdef CONFIG_WT_BACKLIGHT_DISABLE_WITH_NOLCM
+        f = strstr(saved_command_line, "lcm_connected=0");
+        	printk("zhengzhou 111111111111\n");
+        if(f != NULL)
+        {               
+            lcm_connected = 0;         
+        }
+#endif
 
 		p = strstr(saved_command_line, "lcm=");
 		/* we can't find lcm string in the command line, the uboot should be old version */

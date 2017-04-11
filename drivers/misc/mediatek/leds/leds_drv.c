@@ -583,6 +583,40 @@ static ssize_t show_pwm_register(struct device *dev,
 static DEVICE_ATTR(pwm_register, 0664, show_pwm_register, store_pwm_register);
 #endif
 
+/*********************** GPIO ****************************/
+#ifdef CONFIG_WT_CUST_TORCH_FLASHLIGHT
+long flashlight_led_setby_gpio(char *led_name, int level)
+{
+#ifdef GPIO_CAMERA_FLASH_MODE_PIN
+	mt_set_gpio_mode(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_CAMERA_FLASH_MODE_PIN_M_GPIO);
+	mt_set_gpio_dir(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_OUT_ZERO);
+
+	mt_set_gpio_mode(GPIO_CAMERA_FLASH_EN_PIN, GPIO_CAMERA_FLASH_EN_PIN_M_GPIO);
+	mt_set_gpio_dir(GPIO_CAMERA_FLASH_EN_PIN, GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_CAMERA_FLASH_EN_PIN, GPIO_OUT_ZERO);
+
+	if ((level > 0) && (level <= 128))
+	{
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_OUT_ONE);
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_EN_PIN, GPIO_OUT_ZERO);
+	}
+	else if ((level > 128) && (level <= 255))
+	{
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_OUT_ZERO);
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_EN_PIN, GPIO_OUT_ONE);
+	}	
+	else
+	{
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_MODE_PIN, GPIO_OUT_ZERO);
+		mt_set_gpio_out(GPIO_CAMERA_FLASH_EN_PIN, GPIO_OUT_ZERO);
+	}
+#endif
+
+	return 0;
+}
+#endif
+
 #ifdef BACKLIGHT_SUPPORT_LP8557
 static int led_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int led_i2c_remove(struct i2c_client *client);
@@ -794,6 +828,11 @@ static void mt65xx_leds_shutdown(struct platform_device *pdev)
 			LEDS_DRV_DEBUG("backlight control through BLS!!1\n");
 			((cust_set_brightness) (g_leds_data[i]->cust.data)) (0);
 			break;
+#ifdef CONFIG_WT_CUST_TORCH_FLASHLIGHT
+		case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+			((cust_flashlight_brightness_set)(g_leds_data[i]->cust.data))(g_leds_data[i]->cust.name, 0);
+			break;
+#endif
 		case MT65XX_LED_MODE_NONE:
 		default:
 			break;

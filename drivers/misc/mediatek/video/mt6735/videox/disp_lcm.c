@@ -887,10 +887,9 @@ FAIL:
 	return NULL;
 }
 
-
+LCM_DRIVER *lcm_drv = NULL;
 int disp_lcm_init(disp_lcm_handle *plcm, int force)
 {
-	LCM_DRIVER *lcm_drv = NULL;
 
 	DISPPRINT("%s\n", __func__);
 	if (_is_lcm_inited(plcm)) {
@@ -1209,3 +1208,35 @@ int disp_lcm_set_cmd(disp_lcm_handle *plcm, void *handle, int *lcm_cmd, unsigned
 	DISPERR("lcm_drv is null\n");
 	return -1;
 }
+
+#ifdef CONFIG_WT_GAMMA_PQ_WITH_MULTI_LCM
+BOOL DISP_GetPQ_standard_param_LCD(DISP_PQ_PARAM *pq_parameter)
+{
+	//DISPMSG("zhengzhou DISP_GetPQ_standard_param_LCD\n");
+	
+	if(lcm_drv->pq_standard_param != NULL)
+	{
+	  // DISPMSG("zhengzhou pq_standard_param\n");
+	    lcm_drv->pq_standard_param((DISP_PQ_PARAM_LCD *)pq_parameter);
+
+	    return TRUE;
+	}
+
+	return FALSE;
+}
+
+BOOL DISP_GetPQ_vivid_param_LCD(DISP_PQ_PARAM *pq_parameter)
+{      
+          //DISPMSG("zhengzhou DISP_GetPQ_standard_param_LCD\n");
+	
+	if(lcm_drv->pq_vivid_param != NULL)
+	{
+           //DISPMSG("zhengzhou pq_standard_param\n");
+	    lcm_drv->pq_vivid_param((DISP_PQ_PARAM_LCD *)pq_parameter);
+
+	    return TRUE;
+	}
+
+	return FALSE;
+}
+#endif

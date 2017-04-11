@@ -107,6 +107,10 @@ static bool usb_unlimited;
 BATTERY_VOLTAGE_ENUM g_cv_voltage = BATTERY_VOLT_04_200000_V;
 #endif
 
+#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING   //Other 20150420 huangfusheng.wt ui_soc sync full in charging
+	   kal_bool ui_soc_sync_100_enable = KAL_FALSE;
+#endif
+
   /* ///////////////////////////////////////////////////////////////////////////////////////// */
   /* // JEITA */
   /* ///////////////////////////////////////////////////////////////////////////////////////// */
@@ -983,6 +987,14 @@ static unsigned int charging_full_check(void)
 	}
 #else
 	static unsigned char full_check_count;
+
+#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING  //+Other 20150420 huangfusheng.wt ui_soc sync full in charging
+			   if(BMT_status.ICharging < WT_UI_SOC_SYNC_FULL_ITERM )
+			   {
+				   ui_soc_sync_100_enable = KAL_TRUE;
+				   //battery_xlog_printk(BAT_LOG_CRTI, "[BATTERY] charging_full_check  ui_soc_sync_100_enable = KAL_TRUE ! \n");
+			   }
+#endif   //-Other 20150420 huangfusheng.wt ui_soc sync full in charging
 
 	if (BMT_status.ICharging <= charging_full_current) {
 		full_check_count++;

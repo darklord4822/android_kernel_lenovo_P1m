@@ -117,15 +117,12 @@
 #define TPD_HAVE_BUTTON									/* if have virtual key,need define the MACRO */
 #define TPD_BUTTON_HEIGH        				(40)  			/*100 */
 #define TPD_KEY_COUNT           				3    				/*  4 */
-/*
- *#define TPD_KEYS                					{ KEY_MENU, KEY_HOMEPAGE, KEY_BACK}
- *#define TPD_KEYS_DIM            					{{80,900,20,TPD_BUTTON_HEIGH}, {240,900,20,TPD_BUTTON_HEIGH}, {400,900,20,TPD_BUTTON_HEIGH}}
- */
-#define TPD_KEYS                { KEY_MENU, KEY_HOMEPAGE, KEY_BACK}
-#define TPD_KEYS_DIM            	{{270,2500,20,TPD_BUTTON_HEIGH}, {540,2500,20,TPD_BUTTON_HEIGH}, {810,2500,20,TPD_BUTTON_HEIGH}}
+#define TPD_KEYS                					{ KEY_MENU, KEY_HOMEPAGE, KEY_BACK}
+#define TPD_KEYS_DIM            					{{75,1350,20,TPD_BUTTON_HEIGH}, {387,1350,20,TPD_BUTTON_HEIGH}, {582,1350,20,TPD_BUTTON_HEIGH}}
 /*********************Custom Define end*************************************************/
 #define MT_PROTOCOL_B                                                /* change by lixh10  */
 #define TPD_NAME    							"FTS"
+#define CTP_CHARGER_DETECT 0
 /* Pre-defined definition */
 #define TPD_TYPE_CAPACITIVE
 #define TPD_TYPE_RESISTIVE
@@ -137,7 +134,7 @@
 #define TPD_VELOCITY_CUSTOM_X 				15
 #define TPD_VELOCITY_CUSTOM_Y 				20
 
-#define CFG_MAX_TOUCH_POINTS				10  /*change by lixh10  */
+#define CFG_MAX_TOUCH_POINTS				5  /*change by lixh10  */
 #define MT_MAX_TOUCH_POINTS				10
 #define FTS_MAX_ID							0x0F
 #define FTS_TOUCH_STEP						6
@@ -155,8 +152,8 @@
 
 #define	FT_FW_NAME_MAX_LEN	50
 #define TPD_DELAY                					(2*HZ/100)
-#define TPD_RES_X                					1080//480
-#define TPD_RES_Y                						1920//800 change by lixh10 
+#define TPD_RES_X                					720
+#define TPD_RES_Y                					1280
 #define TPD_CALIBRATION_MATRIX  			{962,0,0,0,1600,0,0,0};
 
 //#define TPD_HAVE_CALIBRATION
@@ -282,6 +279,12 @@ struct fts_ts_data {
 	struct early_suspend early_suspend;
 #endif
 };
+
+struct tp_module_info{
+	u8 chip_id;
+	u8 fw_version;
+	u8 vendor_id;
+};
 /*******************************************************************************
 * Static variables
 *******************************************************************************/
@@ -299,7 +302,7 @@ typedef enum {
  *Function Switchs: define to open,  comment to close
  */
 #define FTS_GESTRUE_EN 1
-#define FTS_GLOVE_EN 0 
+#define FTS_GLOVE_EN 1 
 #define FTS_USB_DETECT 1
 //#define FTS_APK_DEBUG
 //#define MTK_EN 1

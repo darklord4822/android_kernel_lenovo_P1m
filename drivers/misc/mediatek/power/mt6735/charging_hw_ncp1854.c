@@ -177,7 +177,7 @@ static unsigned int charging_hw_init(void *data)
 	if ((ncp1854_status == 0x8) || (ncp1854_status == 0x9) || (ncp1854_status == 0xA))
 		ncp1854_set_ctrl_vbat(0x1C);	/* VCHG = 4.0V */
 
-	ncp1854_set_ieoc(0x6); /* cut off current = 250mA */
+	ncp1854_set_ieoc(0x4); /* cut off current = 250mA */
 	ncp1854_set_iweak(0x3);	/* weak charge current = 300mA */
 
 	ncp1854_set_aicl_en(0x1);	/* enable AICL as PT team suggest */
@@ -240,7 +240,7 @@ static unsigned int charging_set_cv_voltage(void *data)
 	unsigned int set_chr_cv;
 
 	if (batt_cust_data.high_battery_voltage_support)
-		cv_value = BATTERY_VOLT_04_350000_V;
+		//cv_value = BATTERY_VOLT_04_350000_V;
 
 	/* use nearest value */
 	array_size = GETARRAYNUM(VBAT_CV_VTH);
@@ -248,6 +248,7 @@ static unsigned int charging_set_cv_voltage(void *data)
 
 	register_value =
 	    charging_parameter_to_value(VBAT_CV_VTH, GETARRAYNUM(VBAT_CV_VTH), set_chr_cv);
+	pr_notice("[BATTERY:ncp1854] charging_set_cv_voltage,cv_value is %d,register_value is %d\n",cv_value,register_value);
 
 	ncp1854_set_ctrl_vbat(register_value);
 

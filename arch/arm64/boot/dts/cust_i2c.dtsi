@@ -28,7 +28,7 @@
 
 &i2c1 {
 	cap_touch@38 {
-		compatible = "mediatek,cap_touch";
+		compatible = "mediatek,cap_touch_cust";
 		reg = <0x38>;
 	};
 

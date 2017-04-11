@@ -124,16 +124,16 @@ static unsigned char CTPM_FW[] = {/*lixh10 */
 	/*
 	 *#include "5x46_Ref_V08_t_D01_20150707_app.i"
 	 */
-#include "Lenovo_K5_MP_01000011_20151208_app.i"
+#include "ft5446i_ofilm_white.i"
 };
 /*
  *zax 20150728++
  */
 static unsigned char CTPM_FW_1[] = {
-#include "Lenovo_K5_MP_01000011_20151208_app.i"
+#include "ft5446i_ofilm_black.i"
 };
 static unsigned char CTPM_FW_2[] = {
-#include "Lenovo_K5_MP_02000005_20151208_app.i"
+#include "ft5446i_ofilm_white.i"
 };
 /*
  *zax 20150728--

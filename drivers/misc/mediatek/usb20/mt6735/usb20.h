@@ -105,6 +105,22 @@ extern void bq24196_set_boost_lim(unsigned int val);
 #elif defined CONFIG_MTK_NCP1854_SUPPORT
 extern void ncp1854_set_chg_en(unsigned int val);
 extern void ncp1854_set_otg_en(unsigned int val);
+extern void ncp1854_set_jeita_opt(unsigned int val); //+Other_platform_modify huangfusheng.wt 20150609 modify for hub detect fail;
+
+//+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
+extern unsigned int ncp1854_get_vobstol2_status(void);
+extern void  ncp1854_set_vobstol1_set(unsigned int val);
+extern void  ncp1854_set_vobstol2_set(unsigned int val);
+extern void  ncp1854_set_int_mask(unsigned int val);
+extern unsigned int ncp1854_get_vobstol2_sns_status(void);
+extern unsigned int ncp1854_get_faultint(void);
+extern void ncp1854_vbusok_mask_set(unsigned int val);
+extern void ncp1854_tsd_mask_set(unsigned int val);
+extern void ncp1854_tm2_mask_set(unsigned int val);
+extern void ncp1854_tm1_mask_set(unsigned int val);
+extern void ncp1854_tmwarning_mask_set(unsigned int val);
+
+//- Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
 #endif
 
 #ifdef FPGA_PLATFORM

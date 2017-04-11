@@ -64,7 +64,7 @@ extern void focaltech_get_upgrade_array(void);
 extern void fts_reset_tp(int HighOrLow);
 
 /**********************Custom define begin**********************************************/
-#define TPD_POWER_SOURCE_CUSTOM         MT6328_POWER_LDO_VGP1
+#define TPD_POWER_SOURCE_CUSTOM         PMIC_APP_CAP_TOUCH_VDD
 #define IIC_PORT                   1//MT6572: 1  MT6589:0 , Based on the I2C index you choose for TPM
 
 //#define FTS_GESTRUE                                  // if need the gesture funtion,enable this MACRO
@@ -96,7 +96,7 @@ FHD   1920x1080  2key ( (160,2100);(920,2100) )           3key  ( (160,2100);(54
 #define TPD_TYPE_CAPACITIVE
 #define TPD_TYPE_RESISTIVE
 #define TPD_POWER_SOURCE         
-#define TPD_I2C_NUMBER           		1
+#define TPD_I2C_NUMBER           		0
 #define TPD_WAKEUP_TRIAL         		60
 #define TPD_WAKEUP_DELAY         		100
 

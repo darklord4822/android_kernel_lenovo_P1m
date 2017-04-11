@@ -112,10 +112,10 @@ int fts_Gesture_init(struct input_dev *input_dev)
 
 	//input_set_capability(input_dev, EV_KEY, KEY_SLIDE);
 	
-	 input_set_capability(input_dev, EV_KEY, KEY_POWER);
+	 input_set_capability(input_dev, EV_KEY, KEY_WAKEUP);
 	 
 	//__set_bit(KEY_SLIDE, input_dev->keybit);
-	__set_bit(KEY_POWER, input_dev->keybit);
+	__set_bit(KEY_WAKEUP, input_dev->keybit);
 #if 0
 	input_set_capability(input_dev, EV_KEY, KEY_GESTURE_U);
 	input_set_capability(input_dev, EV_KEY, KEY_GESTURE_UP);
@@ -263,9 +263,9 @@ static void fts_check_gesture(struct input_dev *input_dev, int gesture_id)
 		break;
 	}
 	if (fts_gesture_letter != 0) {
-		input_report_key(tpd->dev, KEY_POWER, 1);
+		input_report_key(tpd->dev, KEY_WAKEUP, 1);
 		input_sync(tpd->dev);
-		input_report_key(tpd->dev, KEY_POWER, 0);
+		input_report_key(tpd->dev, KEY_WAKEUP, 0);
 		input_sync(tpd->dev);
 	}
 	dev_err(&fts_i2c_client->dev, "ahe fts gesture funtion~~~~ %02x .\n", fts_gesture_letter);

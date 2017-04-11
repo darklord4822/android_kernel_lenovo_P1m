@@ -200,7 +200,7 @@ static unsigned int charging_hw_init(void *data)
 	if (batt_cust_data.high_battery_voltage_support)
 		pmic_set_register_value(PMIC_RG_VBAT_OV_VTH, 3);	/* VBAT_OV_VTH, 4.4V, */
 	else
-		pmic_set_register_value(PMIC_RG_VBAT_OV_VTH, 2);	/* VBAT_OV_VTH, 4.3V, */
+		pmic_set_register_value(PMIC_RG_VBAT_OV_VTH, 1);	/* VBAT_OV_VTH, 4.3V, */
 
 	pmic_set_register_value(PMIC_RG_BATON_EN, 1);	/* BATON_EN */
 
@@ -285,6 +285,7 @@ static unsigned int charging_enable(void *data)
 	return status;
 }
 
+BATTERY_VOLTAGE_ENUM cv_voltage=BATTERY_VOLT_04_200000_V;
 
 static unsigned int charging_set_cv_voltage(void *data)
 {
@@ -294,6 +295,7 @@ static unsigned int charging_set_cv_voltage(void *data)
 	register_value =
 	    charging_parameter_to_value(VBAT_CV_VTH, GETARRAYNUM(VBAT_CV_VTH),
 					*(unsigned int *) (data));
+    cv_voltage=VBAT_CV_VTH[register_value];
 
 	pmic_set_register_value(PMIC_RG_VBAT_CV_VTH, register_value);
 

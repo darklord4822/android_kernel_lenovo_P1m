@@ -10,3 +10,9 @@
 4) headset
 5) part power
 6) and other
+* Not working now:
+1) Sound from the main speaker
+2) Cameras
+3) flashlight
+4) brightness
+5) charging driver

@@ -8,11 +8,12 @@
 2) Touchscreen
 3) Sim Card
 4) headset
-5) part power
+5) charging driver
 6) and other
 * Not working now:
 1) Sound from the main speaker
 2) Cameras
 3) flashlight
 4) brightness
-5) charging driver
+5) accelerometer
+6) alsps

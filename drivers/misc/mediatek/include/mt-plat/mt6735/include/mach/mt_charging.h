@@ -25,8 +25,7 @@
 #define USB_CHARGER_CURRENT_UNCONFIGURED	CHARGE_CURRENT_70_00_MA
 #define USB_CHARGER_CURRENT_CONFIGURED		CHARGE_CURRENT_500_00_MA
 
-#define USB_CHARGER_CURRENT					CHARGE_CURRENT_500_00_MA
-#define USB_CHARGER_CURRENT_OUTPUT_MAX      CHARGE_CURRENT_600_00_MA	//800
+#define USB_CHARGER_CURRENT					CHARGE_CURRENT_600_00_MA
 #define AC_CHARGER_CURRENT					CHARGE_CURRENT_1900_00_MA
 #define AC_CHARGER_CURRENT_OUTPUT_MAX		CHARGE_CURRENT_1900_00_MA
 #define AC_CHARGER_CURRENT_LIMIT			CHARGE_CURRENT_1200_00_MA //Other_lenovo_req huangfusheng.wt modify 20150629 temperature rise test
@@ -108,32 +107,5 @@
 #endif
 
 #define MTK_PLUG_OUT_DETECTION
-
-#define WT_CHR_OVP_RESUME	//Other 20150420 huangfusheng.wt add ovp resume 
-#define WT_HW_OVP_THRESHHOLD //Other 20150420 huangfusheng.wt add setting hw ovp threshhold,platform modify
-#define WT_BAT_TEMP_NOTIFY_RESUME //Other 20150420 huangfusheng.wt  over temperature tip range modify  
-//+Other 20150420 huangfusheng.wt  ui_soc sync full in charging
-#define WT_UI_SOC_SYNC_FULL_IN_CHARGING   
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING
- #define WT_UI_SOC_SYNC_FULL_ITERM  450
-#endif
-//-Other 20150420 huangfusheng.wt ui_soc  sync full in charging
-#define WT_BATTERY_CAPACITY_INFO //Other 20150420 huangfusheng.wt add battery capacity info	
-
-//+Other 20150420 huangfusheng.wt add add low vbat percent tracking
-#define WT_VBAT_LOW_PERCENT_TRACKING
-#ifdef WT_VBAT_LOW_PERCENT_TRACKING
-#define  V_LOW_BAT_CHECK   3600
-#define  VBATSOC_SYNC_TO_SOC_TRACKING_TIME  90
-#define  VBAT_LOW_PERCENT_TRACKING_THRESHHOLD 7
-#endif
-//-Other 20150420 huangfusheng.wt add add low vbat percent tracking
-
-#define WT_UI_SOC_INITIAL  //Other_platform_modify  huangfusheng.wt ADD 20150519  solve ui_soc initial error
-#define WT_BAT_CHARGE_CV_TEMP_LIMIT 	   	 //Other_user_req  huangfusheng.wt  20150520 add set different cv in different temperature
-#define WT_BAT_CHARGE_CURRENT_TEMP_LIMIT //Other_user_req  huangfusheng.wt  20150520 add set charging current in different temperature
-#ifdef WT_BAT_CHARGE_CURRENT_TEMP_LIMIT
-#define AC_CHARGER_CURRENT_LOW_TEMP				CHARGE_CURRENT_1000_00_MA
-#endif
 
 #endif /* _CUST_BAT_H_ */

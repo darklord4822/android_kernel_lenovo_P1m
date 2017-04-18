@@ -219,13 +219,6 @@ kal_bool g_battery_soc_ready = KAL_FALSE;
 /*extern BOOL bat_spm_timeout;
 extern unsigned int _g_bat_sleep_total_time;*/
 
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING  //Other 20150420 huangfusheng.wt ui_soc sync full in charging
-extern unsigned int ui_soc_sync_100_enable ;
-#endif
-#ifdef WT_VBAT_LOW_PERCENT_TRACKING
-extern unsigned int fgauge_read_capacity_by_v(unsigned int voltage); //Other 20150420 huangfusheng.wt add add low vbat percent tracking
-#endif
-
 /*
  * FOR ADB CMD
  */
@@ -284,11 +277,6 @@ struct battery_data {
 	int capacity_smb;
 	int present_smb;
 	int adjust_power;
-	//+Other 20150420 huangfusheng.wt add battery capacity info
-	#ifdef WT_BATTERY_CAPACITY_INFO
-	int charge_full_design;
-	#endif
-	//-Other 20150420 huangfusheng.wt add battery capacity info
 };
 
 static enum power_supply_property wireless_props[] = {
@@ -326,12 +314,6 @@ static enum power_supply_property battery_props[] = {
 	POWER_SUPPLY_PROP_present_smb,
 	/* ADB CMD Discharging */
 	POWER_SUPPLY_PROP_adjust_power,
-
-	//+Other 20150420 huangfusheng.wt add battery capacity info
-	#ifdef WT_BATTERY_CAPACITY_INFO
-	POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN,
-	#endif
-	//-Other 20150420 huangfusheng.wt add battery capacity info
 };
 
 /*void check_battery_exist(void);*/
@@ -649,13 +631,7 @@ static int battery_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_adjust_power:
 		val->intval = data->adjust_power;
 		break;
-    //+Other 20150420 huangfusheng.wt add battery capacity info
-	#ifdef WT_BATTERY_CAPACITY_INFO
-	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
-		val->intval = data->charge_full_design;
-		break;
-	#endif
-	//-Other 20150420 huangfusheng.wt add battery capacity info
+
 	default:
 		ret = -EINVAL;
 		break;
@@ -1812,73 +1788,6 @@ static kal_bool mt_battery_nPercent_tracking_check(void)
 
 }
 
-#ifdef WT_VBAT_LOW_PERCENT_TRACKING //Other 20150420 huangfusheng.wt add add low vbat percent tracking
-static kal_bool mt_vbat_soc_n_percent_tracking(void)
-{
-	
-		kal_bool resetBatteryMeter = KAL_FALSE;
-		static unsigned int timer_counter = (VBATSOC_SYNC_TO_SOC_TRACKING_TIME/BAT_TASK_PERIOD);	
-		
-		unsigned int vbat_checking_point = V_LOW_BAT_CHECK ;
-		unsigned int vbat_checking_point_SOC = fgauge_read_capacity_by_v(vbat_checking_point);
-
-			if(vbat_checking_point_SOC <=2)
-			{
-				vbat_checking_point_SOC =2;
-			}
-			else if(vbat_checking_point_SOC >=3)
-			{
-				vbat_checking_point_SOC =3;
-			}
-
-			if(BMT_status.UI_SOC <(vbat_checking_point_SOC+VBAT_LOW_PERCENT_TRACKING_THRESHHOLD) )
-			{
-				if((BMT_status.bat_vol <=vbat_checking_point)&&(BMT_status.UI_SOC>vbat_checking_point_SOC))
-				{
-					if (timer_counter ==(VBATSOC_SYNC_TO_SOC_TRACKING_TIME/BAT_TASK_PERIOD))
-					{
-						BMT_status.UI_SOC--;
-						timer_counter=1;
-						resetBatteryMeter = KAL_TRUE;
-					
-					} 
-					else
-					{
-						timer_counter++;
-						resetBatteryMeter = KAL_FALSE;
-					}
-					
-					battery_xlog_printk(BAT_LOG_CRTI, "[ vbat nPercent] vbat %d <= vbat_checking_point %d, UI_SOC=%d., vbat_checking_point_SOC=%d \n", 
-						 BMT_status.bat_vol, vbat_checking_point, BMT_status.UI_SOC, vbat_checking_point_SOC);
-				}
-				else if((BMT_status.bat_vol >vbat_checking_point)&&(BMT_status.UI_SOC==vbat_checking_point_SOC))
-				{
-					timer_counter = (VBATSOC_SYNC_TO_SOC_TRACKING_TIME/BAT_TASK_PERIOD);
-					resetBatteryMeter = KAL_TRUE;
-
-					battery_xlog_printk(BAT_LOG_CRTI, "[ vbat nPercent] vbat %d > vbat_checking_point %d, UI_SOC=%d., vbat_checking_point_SOC=%d \n", 
-						 BMT_status.bat_vol, vbat_checking_point, BMT_status.UI_SOC, vbat_checking_point_SOC);
-				}
-				else
-				{
-					
-					timer_counter = (VBATSOC_SYNC_TO_SOC_TRACKING_TIME/BAT_TASK_PERIOD);
-					resetBatteryMeter = KAL_FALSE;
-					
-					battery_xlog_printk(BAT_LOG_CRTI, " other  mt_vbat_soc_n_percent_tracking !!\n");
-				}
-
-			}
-			
-		      return resetBatteryMeter;
-	
-		battery_xlog_printk(BAT_LOG_CRTI, "[ vbat nPercent] vbat %d > vbat_checking_point %d, UI_SOC=%d., vbat_checking_point_SOC=%d \n", 
-		 BMT_status.bat_vol, vbat_checking_point, BMT_status.UI_SOC, vbat_checking_point_SOC);
-	
-}
-
-#endif
-
 static kal_bool mt_battery_0Percent_tracking_check(void)
 {
 	kal_bool resetBatteryMeter = KAL_TRUE;
@@ -1903,15 +1812,6 @@ static kal_bool mt_battery_0Percent_tracking_check(void)
 static void mt_battery_Sync_UI_Percentage_to_Real(void)
 {
 	static unsigned int timer_counter;
-#ifdef WT_UI_SOC_INITIAL   //Other_platform_modify huangfusheng.wt ADD 20150519  solve ui_soc initial error
-	static unsigned int init_UI_SOC = 0; 
-
-	if(init_UI_SOC == 0)
-	{
-	    BMT_status.UI_SOC = BMT_status.SOC;
-		init_UI_SOC = 1;
-	}
-#endif
 
 	if ((BMT_status.UI_SOC > BMT_status.SOC) && ((BMT_status.UI_SOC != 1))) {
 #if !defined(SYNC_UI_SOC_IMM)
@@ -1943,29 +1843,8 @@ static void mt_battery_Sync_UI_Percentage_to_Real(void)
 		timer_counter = 0;
 
 #if !defined(CUST_CAPACITY_OCV2CV_TRANSFORM)
-		   #ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING  //+Other 20150420 huangfusheng.wt ui_soc sync full in charging
-				if(BMT_status.SOC<=99) 
-				{
-					BMT_status.UI_SOC = BMT_status.SOC;
-				}
-				else 
-				{
-					if((BMT_status.charger_exist == KAL_TRUE))
-					{
-					if(ui_soc_sync_100_enable == KAL_TRUE)
-					{
-							BMT_status.UI_SOC = BMT_status.SOC;
-						}
-					}
-                    else
-                    {
-						BMT_status.UI_SOC = BMT_status.SOC;
-					}
-				}
-		   #else
-		   	BMT_status.UI_SOC = BMT_status.SOC;
-		   #endif  //-Other 20150420 huangfusheng.wt ui_soc sync full in charging
-		#else
+		BMT_status.UI_SOC = BMT_status.SOC;
+#else
 		if (BMT_status.UI_SOC == -1)
 			BMT_status.UI_SOC = BMT_status.SOC;
 		else if (BMT_status.charger_exist && BMT_status.bat_charging_state != CHR_ERROR) {
@@ -1996,12 +1875,6 @@ static void battery_update(struct battery_data *bat_data)
 	bat_data->BAT_batt_temp = BMT_status.temperature * 10;
 	bat_data->BAT_PRESENT = BMT_status.bat_exist;
 
-	//+Other 20150420 huangfusheng.wt add battery capacity info	
-	#ifdef WT_BATTERY_CAPACITY_INFO
-	bat_data->charge_full_design = Q_MAX_POS_25 * 1000;
-	#endif
-	//-Other 20150420 huangfusheng.wt add battery capacity info
-
 	if ((BMT_status.charger_exist == KAL_TRUE) && (BMT_status.bat_charging_state != CHR_ERROR)) {
 		if (BMT_status.bat_exist) {	/* charging */
 			if (BMT_status.bat_vol <= batt_cust_data.v_0percent_tracking)
@@ -2022,15 +1895,8 @@ static void battery_update(struct battery_data *bat_data)
 		bat_data->BAT_STATUS = POWER_SUPPLY_STATUS_NOT_CHARGING;
 		if (BMT_status.bat_vol <= batt_cust_data.v_0percent_tracking)
 			resetBatteryMeter = mt_battery_0Percent_tracking_check();
-	        #ifdef WT_VBAT_LOW_PERCENT_TRACKING //+Other 20150420 huangfusheng.wt add add low vbat percent tracking
-			if((BMT_status.bat_vol <= V_LOW_BAT_CHECK))
-				{
-					
-					resetBatteryMeter	= mt_vbat_soc_n_percent_tracking();
-				}
-			#else
+		else
 			resetBatteryMeter = mt_battery_nPercent_tracking_check();
-			#endif //-Other 20150420 huangfusheng.wt add add low vbat percent tracking
 	}
 
 	if (resetBatteryMeter == KAL_TRUE) {
@@ -2581,16 +2447,6 @@ static PMU_STATUS mt_battery_CheckChargerVoltage(void)
 			BMT_status.bat_charging_state = CHR_ERROR;
 			status = PMU_STATUS_FAIL;
 		}
-#if defined(WT_CHR_OVP_RESUME)	//+Other 20150420 huangfusheng.wt add ovp resume 
-	else
-	{
-		if(charger_OVER_VOL == BMT_status.charger_protect_status)
-		{
-			BMT_status.charger_protect_status = 0;
-			BMT_status.bat_charging_state = CHR_PRE;
-		}
-	}	
-#endif	//-Other 20150420 huangfusheng.wt add ovp resume 
 	}
 
 	return status;
@@ -2757,22 +2613,6 @@ static void mt_battery_notify_VBatTemp_check(void)
 #endif
 #endif
 
-#if defined(WT_BAT_TEMP_NOTIFY_RESUME)	//+Other 20150420 huangfusheng.wt  over temperature tip range modify  
-			   else
-			   {
-					if(BMT_status.temperature < MAX_CHARGE_TEMPERATURE_MINUS_X_DEGREE)	
-					{
-						g_BatteryNotifyCode &= ~(0x0002);
-					}
-					
-		#ifdef BAT_LOW_TEMP_PROTECT_ENABLE
-					else if(BMT_status.temperature > MIN_CHARGE_TEMPERATURE_PLUS_X_DEGREE) 
-					{
-						g_BatteryNotifyCode &= ~(0x0020);
-					}
-		#endif
-			   }
-#endif		//-Other 20150331 huangfusheng.wt  over temperature tip range modify  
 	battery_log(BAT_LOG_FULL, "[BATTERY] BATTERY_NOTIFY_CASE_0002_VBATTEMP (%x)\n",
 		    g_BatteryNotifyCode);
 
@@ -2841,10 +2681,7 @@ void mt_battery_notify_check(void)
 
 		mt_battery_notify_VCharger_check();
 
-		if (BMT_status.charger_exist == KAL_TRUE) //Other_lenovo_req huangfusheng.wt ADD 20150528 temperature notify only in not charge
-		{
 		mt_battery_notify_VBatTemp_check();
-		}
 
 		mt_battery_notify_ICharging_check();
 
@@ -3065,9 +2902,6 @@ static void mt_battery_charger_detect_check(void)
 		battery_log(BAT_LOG_FULL, "[BAT_thread]Cable out \r\n");
 
 		mt_usb_disconnect();
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING //Other 20150519 huangfusheng.wt ui_soc sync full in charging
-			ui_soc_sync_100_enable = KAL_FALSE;
-#endif
 
 #if defined(CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT)
 		is_ta_connect = KAL_FALSE;
@@ -3152,12 +2986,6 @@ void do_chrdet_int_task(void)
 		} else {
 			battery_log(BAT_LOG_CRTI, "[do_chrdet_int_task] charger NOT exist!\n");
 			BMT_status.charger_exist = KAL_FALSE;
-			//+//Other_platform_modify huangfusheng.wt modify 20150528 disable charger after cable out 
-				kal_bool charging_enable = KAL_FALSE;
-				battery_charging_control(CHARGING_CMD_ENABLE,&charging_enable); 
-				battery_log(BAT_LOG_CRTI,
-					    "[do_chrdet_int_task] charging disable====!!! \n");
-			//-//Other_platform_modify huangfusheng.wt modify 20150528 disable charger after cable out 
 
 #if defined(CONFIG_MTK_DUAL_INPUT_CHARGER_SUPPORT)
 			battery_log(BAT_LOG_CRTI,
@@ -3243,9 +3071,6 @@ void BAT_thread(void)
 		battery_meter_initial();	/* move from battery_probe() to decrease booting time */
 		BMT_status.nPercent_ZCV = battery_meter_get_battery_nPercent_zcv();
 		battery_meter_initilized = KAL_TRUE;
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING  //Other 20150519 huangfusheng.wt ui_soc sync full in charging
-			ui_soc_sync_100_enable = KAL_FALSE;
-#endif
 #if defined(CONFIG_POWER_EXT)
 #else
 		BMT_status.SOC = battery_meter_get_battery_percentage();
@@ -3707,11 +3532,7 @@ void hv_sw_mode(void)
 int charger_hv_detect_sw_thread_handler(void *unused)
 {
 	ktime_t ktime;
-	#ifdef WT_HW_OVP_THRESHHOLD   //+Other 20150420 huangfusheng.wt add setting hw ovp threshhold,platform modify
-	unsigned int hv_voltage = BATTERY_VOLT_07_000000_V; 
-	#else
 	unsigned int hv_voltage = batt_cust_data.v_charger_max * 1000;
-	#endif //-Other 20150420 huangfusheng.wt add setting hw ovp threshhold,platform modify
 
 
 	unsigned char cnt = 0;

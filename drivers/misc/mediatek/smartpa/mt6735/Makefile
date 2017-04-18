@@ -1,1 +1,1 @@
-obj-$(CONFIG_MTK_SOUND) += AudDrv_NXP.o
+obj-y += AudDrv_NXP.o

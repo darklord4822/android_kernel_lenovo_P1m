@@ -23,7 +23,6 @@
 #include <mt-plat/mt_gpio.h>
 #include <cust_gpio_usage.h>
 #endif
-#include <cust_eint.h> // Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
 #include "musb_core.h"
 #include <linux/platform_device.h>
 #include "musbhsdma.h"
@@ -104,21 +103,6 @@ void mt_usb_set_vbus(struct musb *musb, int is_on)
 	#elif defined(CONFIG_MTK_NCP1854_SUPPORT)
 		ncp1854_set_otg_en(0);
 		ncp1854_set_chg_en(0);
-        ncp1854_set_jeita_opt(0x0);//+Other_platform_modify huangfusheng.wt 20150609 modify for hub detect fail;
-	    // Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test	
-		ncp1854_set_int_mask(0);
-		ncp1854_set_vobstol1_set(0);
-		ncp1854_set_vobstol2_set(0);
-
-		ncp1854_vbusok_mask_set(1);
-		ncp1854_tsd_mask_set(1);
-		ncp1854_tm2_mask_set(1);
-		ncp1854_tm1_mask_set(1);
-		ncp1854_tmwarning_mask_set(1);
-		
-		
-        mt_eint_unmask(CUST_EINT_CHR_STAT_NUM);
-		msleep(200);
 		ncp1854_set_otg_en(1);
 	#else
 		#ifdef CONFIG_OF
@@ -147,7 +131,6 @@ void mt_usb_set_vbus(struct musb *musb, int is_on)
 		bq24196_set_otg_config(0x0);	/* OTG disabled */
 	#elif defined(CONFIG_MTK_NCP1854_SUPPORT)
 		ncp1854_set_otg_en(0x0);
-        mt_eint_mask(CUST_EINT_CHR_STAT_NUM);
 	#else
 		#ifdef CONFIG_OF
 		#if defined(CONFIG_MTK_LEGACY)
@@ -348,31 +331,6 @@ void switch_int_to_host_and_mask(struct musb *musb)
 	DBG(0, "swtich_int_to_host_and_mask is done\n");
 }
 
-//+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
-
-static void musb_ncp1854_otg_flag_pin_work(struct work_struct *data)
-{
-		DBG(0,"enter musb_ncp1854_otg_flag_pin_work is \n");
-		if(1==ncp1854_get_faultint())
-		{
-			if(1==ncp1854_get_vobstol2_status())
-			{
-			
-			  mdelay(500);
-			  if(1 == ncp1854_get_vobstol2_sns_status())				
-			{
-			   
-			   DBG(0,"musb_ncp1854_otg_flag_pin_work is 3333\n");
-			   ncp1854_set_otg_en(0);
-			   mt_eint_mask(CUST_EINT_CHR_STAT_NUM);
-			   
-			}
-			
-			}
-		}
-}
-//- Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
-
 static void musb_id_pin_work(struct work_struct *data)
 {
 	u8 devctl = 0;
@@ -435,7 +393,6 @@ static void musb_id_pin_work(struct work_struct *data)
 		MUSB_HST_MODE(mtk_musb);
 		switch_int_to_device(mtk_musb);
 	} else {
-		musb_epx_transfer_allowed = 0;
 		DBG(0, "devctl is %x\n", musb_readb(mtk_musb->mregs, MUSB_DEVCTL));
 		musb_writeb(mtk_musb->mregs, MUSB_DEVCTL, 0);
 		if (wake_lock_active(&mtk_musb->usb_lock))
@@ -475,15 +432,6 @@ static irqreturn_t mt_usb_ext_iddig_int(int irq, void *dev_id)
 	disable_irq_nosync(usb_iddig_number);
 	return IRQ_HANDLED;
 }
-
-//+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
-static void mt_ncp1854_otg_fail_handler(void)
-{
-	DBG(0,"mt_ncp1854_otg_fail_handler \n");
-	schedule_delayed_work(&mtk_musb->ncp1854_otg_flag_pin_work,0);
-  
-}
-//- Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
 
 void mt_usb_iddig_int(struct musb *musb)
 {
@@ -562,22 +510,6 @@ static void otg_int_init(void)
 
 	musb_writel(mtk_musb->mregs, USB_L1INTM, IDDIG_INT_STATUS|musb_readl(mtk_musb->mregs, USB_L1INTM));
 #endif
-
-//+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
-
-  mt_set_gpio_mode(GPIO_EINT_CHG_STAT_PIN, GPIO_EINT_CHG_STAT_PIN_M_EINT);
-  mt_set_gpio_dir(GPIO_EINT_CHG_STAT_PIN, GPIO_DIR_IN);
-  mt_set_gpio_pull_enable(GPIO_EINT_CHG_STAT_PIN, GPIO_PULL_ENABLE);
-  mt_set_gpio_pull_select(GPIO_EINT_CHG_STAT_PIN, GPIO_PULL_UP);
-  
-  mt_eint_set_sens(CUST_EINT_CHR_STAT_NUM, MT_EDGE_SENSITIVE);
-  mt_eint_set_hw_debounce(CUST_EINT_CHR_STAT_NUM,0);
-  mt_eint_registration(CUST_EINT_CHR_STAT_NUM, EINTF_TRIGGER_FALLING, mt_ncp1854_otg_fail_handler, 1);
-  mt_eint_mask(CUST_EINT_CHR_STAT_NUM);
-
-  DBG(0,"otg_int_init  GPIO_EINT_CHG_STAT_PIN,unmask CUST_EINT_CHR_STAT_NUM \n");
-  
-  //+ Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
 }
 
 void mt_usb_otg_init(struct musb *musb)
@@ -617,7 +549,6 @@ void mt_usb_otg_init(struct musb *musb)
 
 	/* init idpin interrupt */
 	INIT_DELAYED_WORK(&musb->id_pin_work, musb_id_pin_work);
-	INIT_DELAYED_WORK(&musb->ncp1854_otg_flag_pin_work,musb_ncp1854_otg_flag_pin_work); // Other_lenovo_req huangfusheng.wt add 20150704 otg short circuit test
 	otg_int_init();
 
 	/* EP table */

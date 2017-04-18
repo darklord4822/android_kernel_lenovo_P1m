@@ -50,9 +50,9 @@
 		reg = <0x68>;
 	};
 
-	gsensor@18 {
+	gsensor@1E {
 		compatible = "mediatek,gsensor";
-		reg = <0x18>;
+		reg = <0x1E>;
 	};
 
 	alsps@49 {
@@ -69,4 +69,8 @@
 		compatible = "mediatek,strobe_main";
 		reg = <0x63>;
 	};
+
+    mtksmartpa@68 {
+		compatible = "mediatek,mtksmartpa";
+    };
 };

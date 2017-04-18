@@ -47,14 +47,14 @@ static const struct i2c_device_id ts3a225e_i2c_id[] = { {"TS3A225E", 0}, {} };
 
 static int ts3a225e_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
-	unsigned char devicve_id[1];
+	unsigned char device_id[1];
 
 	pr_warn("ts3a225e_i2c_probe\n");
 
 	ts3a225e_i2c_client = client;
 
-	ts3a225e_read_byte(0x01, &devicve_id[0]);
-	pr_warn("ts3a225e_i2c_probe ID=%x\n", devicve_id[0]);
+	ts3a225e_read_byte(0x01, &device_id[0]);
+	//printk("ts3a225e_i2c_probe ID=%x\n", device_id[0]);
 
 	return 0;
 }

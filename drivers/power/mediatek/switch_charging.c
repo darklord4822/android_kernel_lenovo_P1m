@@ -102,10 +102,6 @@ kal_bool pep_det_rechg = KAL_FALSE;
 int ta_v_chr_org = 0;
 #endif
 
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING   //Other 20150420 huangfusheng.wt ui_soc sync full in charging
-	   kal_bool ui_soc_sync_100_enable = KAL_FALSE;
-#endif
-
  /* ///////////////////////////////////////////////////////////////////////////////////////// */
  /* // JEITA */
  /* ///////////////////////////////////////////////////////////////////////////////////////// */
@@ -113,8 +109,6 @@ int ta_v_chr_org = 0;
 int g_temp_status = TEMP_POS_10_TO_POS_45;
 kal_bool temp_error_recovery_chr_flag = KAL_TRUE;
 #endif
-
-extern int lcd_backlight_off;//Other_lenovo_req huangfusheng.wt modify 20150629 temperature rise test
 
 /* ============================================================ // */
 /* function prototype */
@@ -898,7 +892,6 @@ unsigned int set_bat_charging_current_limit(int current_limit)
 	battery_log(BAT_LOG_CRTI, "[BATTERY] set_bat_charging_current_limit (%d)\r\n",
 		    current_limit);
 
-	#if 0   //+Other_lenovo_modify huangfusheng.wt add 20150605 for limit charging current
 	if (current_limit != -1) {
 		g_bcct_flag = 1;
 		g_bcct_value = current_limit;
@@ -951,13 +944,6 @@ unsigned int set_bat_charging_current_limit(int current_limit)
 
 	/* wake_up_bat(); */
 	pchr_turn_on_charging();
-	#else
-	g_bcct_flag =0;
-	
-	battery_log(BAT_LOG_CRTI, "[BATTERY] set_bat_charging_current_limit g_bcct_flag (%d)\r\n",
-			    g_bcct_flag);
-	
-	#endif  //-Other_lenovo_modify huangfusheng.wt add 20150605 for limit charging current
 
 	return g_bcct_flag;
 }
@@ -999,11 +985,7 @@ void select_charging_current(void)
 #else
 			{
 				g_temp_input_CC_value = batt_cust_data.usb_charger_current;
-				#ifdef CONFIG_MTK_NCP1854_SUPPORT
-				g_temp_CC_value = USB_CHARGER_CURRENT_OUTPUT_MAX; //+Other_user_req  huangfusheng.wt  20150520add set usb charging cuttent
-				#else
 				g_temp_CC_value = batt_cust_data.usb_charger_current;
-				#endif
 			}
 #endif
 		} else if (BMT_status.charger_type == NONSTANDARD_CHARGER) {
@@ -1011,36 +993,6 @@ void select_charging_current(void)
 			g_temp_CC_value = batt_cust_data.non_std_ac_charger_current;
 
 		} else if (BMT_status.charger_type == STANDARD_CHARGER) {
-#ifdef WT_BAT_CHARGE_CURRENT_TEMP_LIMIT //+Other_user_req  huangfusheng.wt	20150520add set charging current in different temperature
-			if((BMT_status.temperature > 15)&&(BMT_status.temperature <=45))
-			{
-				if((lcd_backlight_off == 0)||(g_call_state == CALL_ACTIVE)) //Other_lenovo_req huangfusheng.wt modify 20150629 temperature rise test
-				{
-					g_temp_CC_value = AC_CHARGER_CURRENT_OUTPUT_LIMIT_MAX;
-				 	g_temp_input_CC_value = AC_CHARGER_CURRENT_LIMIT; 
-
-				}
-				else
-				{
-				 g_temp_CC_value = AC_CHARGER_CURRENT_OUTPUT_MAX;
-				 g_temp_input_CC_value = AC_CHARGER_CURRENT; 
-				}
-			#ifdef WT_DECREASE_CHARGING_SURRENT_NEAR_FULL	// Other_platform_modify  huangfusheng.wt  20150520 add set charging current near cv only high voltage battery
-				 if(BMT_status.bat_vol >= 4250) 			 
-				 {
-					 g_temp_CC_value = AC_CHARGER_CURRENT_NEAR_FULL;
-					 g_temp_input_CC_value = AC_CHARGER_CURRENT_NEAR_FULL;
-				 }
-
-			#endif
-			}
-			else
-			{
-            	g_temp_CC_value = AC_CHARGER_CURRENT_LOW_TEMP;
-				g_temp_input_CC_value = AC_CHARGER_CURRENT_LOW_TEMP;
-				
-			}	
-#else
 			if (batt_cust_data.ac_charger_input_current != 0)
 				g_temp_input_CC_value = batt_cust_data.ac_charger_input_current;
 			else
@@ -1050,7 +1002,6 @@ void select_charging_current(void)
 #if defined(CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT)
 			if (is_ta_connect == KAL_TRUE)
 				set_ta_charging_current();
-#endif //-Other_user_req  huangfusheng.wt	20150520add set charging current in different temperature
 #endif
 		} else if (BMT_status.charger_type == CHARGING_HOST) {
 			g_temp_input_CC_value = batt_cust_data.charging_host_charger_current;
@@ -1086,13 +1037,6 @@ void select_charging_current(void)
 static unsigned int charging_full_check(void)
 {
 	unsigned int status;
-#ifdef WT_UI_SOC_SYNC_FULL_IN_CHARGING  //Other 20150420 huangfusheng.wt ui_soc sync full in charging
-			   if(BMT_status.ICharging < WT_UI_SOC_SYNC_FULL_ITERM )
-			   {
-				   ui_soc_sync_100_enable = KAL_TRUE;
-				   //battery_xlog_printk(BAT_LOG_CRTI, "[BATTERY] charging_full_check  ui_soc_sync_100_enable = KAL_TRUE ! \n");
-			   }
-#endif
 
 	battery_charging_control(CHARGING_CMD_GET_CHARGING_STATUS, &status);
 	if (status == KAL_TRUE) {
@@ -1189,42 +1133,9 @@ static void pchr_turn_on_charging(void)
 			/*Set CV Voltage */
 #if !defined(CONFIG_MTK_JEITA_STANDARD_SUPPORT)
 			if (batt_cust_data.high_battery_voltage_support)
-#if defined(WT_BAT_CHARGE_CV_TEMP_LIMIT) //Other_user_req  huangfusheng.wt	20150520 add set different cv in different temperature
-			if((BMT_status.temperature >= 0)&&(BMT_status.temperature <= 45))
-			{
-				
-					cv_voltage = BATTERY_VOLT_04_375000_V;
-
-			}
-			else if((BMT_status.temperature > 45)&&(BMT_status.temperature <= 50))
-			{
-
-					cv_voltage = BATTERY_VOLT_04_150000_V; 
-			}
+				cv_voltage = BATTERY_VOLT_04_340000_V;
 			else
-			{
-				cv_voltage = BATTERY_VOLT_04_350000_V;	
-			}
-#else			
-			cv_voltage = BATTERY_VOLT_04_350000_V;
-#endif
-			else
-			#if defined(WT_BAT_CHARGE_CV_TEMP_LIMIT) //Other_user_req  huangfusheng.wt  20150520 add set different cv in different temperature
-					if((BMT_status.temperature >= 0)&&(BMT_status.temperature <= 45))
-					{
-						cv_voltage = BATTERY_VOLT_04_200000_V;	
-					}
-					else if((BMT_status.temperature > 45)&&(BMT_status.temperature <= 50))
-					{
-						cv_voltage = BATTERY_VOLT_04_000000_V; 
-					}
-					else
-					{
-						cv_voltage = BATTERY_VOLT_04_200000_V;
-					}
-					#else
-					cv_voltage = BATTERY_VOLT_04_200000_V;
-					#endif
+				cv_voltage = BATTERY_VOLT_04_200000_V;
 
 #ifdef CONFIG_MTK_DYNAMIC_BAT_CV_SUPPORT
 			cv_voltage = get_constant_voltage() * 1000;

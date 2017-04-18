@@ -1,0 +1,10 @@
+config MTK_KXTJ2_1009_NEW
+	bool "MTK_KXTJ2_1009_NEW for MediaTek package"
+	default n
+	help
+	  It support different accelerometer sensor.
+          If this option is set,
+	  it will support
+          CONFIG_MTK_KXTJ2_1009_NEW Accelerometer.
+
+

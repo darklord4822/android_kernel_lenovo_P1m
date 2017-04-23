@@ -12,10 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Written by: daniel_hk (https://github.com/danielhk)
- ** 2016/10/12: initial release
- ** 2016/10/18: add CONFIG_MTK_I2C_EXTENSION support for DMA transfer
  */
 
 #include <asm/uaccess.h>
@@ -39,10 +35,10 @@
 #define ECODEC_SLAVE_ADDR_READ	0x69
 
 #define I2C_MASTER_CLOCK	400
-#define TFA9897_I2C_DEVNAME	"tfa9897"
+#define TFA9897_I2C_DEVNAME	"smartpa_i2c"
 
 #define AudDrv_tfa9897_NAME	"MediaTek TFA9897 SmartPA Driver"
-#define AUDDRV_AUTHOR		"daniel_hk"
+#define AUDDRV_AUTHOR		"darklord4822"
 
 // i2c variable
 static struct i2c_client *tfa_client = NULL;
@@ -108,12 +104,8 @@ static int Tfa9897Pa_i2c_probe(struct i2c_client *client, const struct i2c_devic
     mt_set_gpio_mode(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_MODE_00);
     mt_set_gpio_out(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_OUT_ZERO);
     msleep(2);
-    //mt_set_gpio_mode(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_MODE_00);
-    //mt_set_gpio_dir(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_OUT_ONE);
     msleep(2);
-    //mt_set_gpio_mode(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_MODE_00);
-    //mt_set_gpio_dir(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_AUD_EXTDAC_RST_PIN/*GPIO130*/, GPIO_OUT_ZERO);
     msleep(10);
 #endif
@@ -148,9 +140,6 @@ static int Tfa9897Pa_i2c_remove(struct i2c_client *client)
     }
 #endif
     msleep(1);
-    //mt_set_gpio_mode(GPIO_AUD_EXTHP_EN_PIN, GPIO_MODE_00);
-    //mt_set_gpio_dir(GPIO_AUD_EXTHP_EN_PIN, GPIO_DIR_OUT);
-    //mt_set_gpio_out(GPIO_AUD_EXTHP_EN_PIN, GPIO_OUT_ZERO);
     return 0;
 }
 
@@ -162,13 +151,6 @@ static int Tfa9897Pa_register()
     int ret = 0;
 
     pr_debug("%s \n", __func__);
-
-#if 0//CONFIG_MTK_NXP_TFA9897
-    mt_set_gpio_mode(GPIO_AUD_EXTHP_EN_PIN, GPIO_MODE_00);
-    mt_set_gpio_dir(GPIO_AUD_EXTHP_EN_PIN, GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_AUD_EXTHP_EN_PIN, GPIO_OUT_ONE);
-    msleep(1);
-#endif
 
     adapter = i2c_get_adapter(TFA_I2C_CHANNEL);
     if (!adapter) {

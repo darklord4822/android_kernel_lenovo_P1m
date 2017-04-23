@@ -13,7 +13,9 @@
 7) Alsps
 8) Sound from the main speaker
 9) Brightness
-10) And other
+10) OTG
+11) Led indicators
+12) And other
 * Not working now:
 1) Cameras
 2) Flashlight

@@ -35,7 +35,8 @@
 #define ECODEC_SLAVE_ADDR_READ	0x69
 
 #define I2C_MASTER_CLOCK	400
-#define TFA9897_I2C_DEVNAME	"smartpa_i2c"
+//#define TFA9897_I2C_DEVNAME	"smartpa_i2c"
+#define TFA9897_I2C_DEVNAME	"tfa9897"
 
 #define AudDrv_tfa9897_NAME	"MediaTek TFA9897 SmartPA Driver"
 #define AUDDRV_AUTHOR		"darklord4822"

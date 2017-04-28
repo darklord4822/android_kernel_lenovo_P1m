@@ -28,7 +28,7 @@
 
 &i2c1 {
 	cap_touch@38 {
-		compatible = "mediatek,cap_touch";
+		compatible = "mediatek,cap_touch_cust";
 		reg = <0x38>;
 	};
 
@@ -50,14 +50,14 @@
 		reg = <0x68>;
 	};
 
-	gsensor@4c {
+	gsensor@1E {
 		compatible = "mediatek,gsensor";
-		reg = <0x4c>;
+		reg = <0x1E>;
 	};
 
-	alsps@60 {
+	alsps@49 {
 		compatible = "mediatek,alsps";
-		reg = <0x60>;
+		reg = <0x49>;
 	};
 
 	nfc@28 {
@@ -70,13 +70,7 @@
 		reg = <0x63>;
 	};
 
+    mtksmartpa@68 {
+		compatible = "mediatek,mtksmartpa";
+    };
 };
-
-&i2c3 {
-	ext_buck@6b {
-		compatible = "mediatek,ext_buck";
-		reg = <0x6b>;
-	};
-
-};
-

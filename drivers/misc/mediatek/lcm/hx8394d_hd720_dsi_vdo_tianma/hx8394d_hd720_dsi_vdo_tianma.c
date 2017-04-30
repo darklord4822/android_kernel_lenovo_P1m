@@ -14,9 +14,8 @@
 #endif
 
 #include "lcm_drv.h"
-
 #include <mt-plat/mt_gpio.h>
-#include "cust_gpio_usage.h"
+#include <mt-plat/mt_gpio_core.h>
 static LCM_UTIL_FUNCS lcm_util;
 
 #define SET_RESET_PIN(v)    								(lcm_util.set_reset_pin((v)))
@@ -42,10 +41,6 @@ static LCM_UTIL_FUNCS lcm_util;
 
 #define FRAME_WIDTH  										(720)
 #define FRAME_HEIGHT 										(1280)
-#ifndef CONFIG_FPGA_EARLY_PORTING
-#define GPIO_65132_ENP GPIO_LCD_BIAS_ENP_PIN
-#define GPIO_65132_ENN GPIO_LCD_BIAS_ENN_PIN
-#endif
 
 #define REGFLAG_DELAY             								0xFC
 #define REGFLAG_UDELAY             								0xFB
@@ -536,8 +531,8 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 	params->dsi.clk_lp_per_line_enable = 0;
 	
-	params->dsi.esd_check_enable = 1;
-	params->dsi.customization_esd_check_enable = 1;
+	params->dsi.esd_check_enable = 0;
+	params->dsi.customization_esd_check_enable = 0;
 	params->dsi.lcm_esd_check_table[0].cmd          = 0x09;
 	params->dsi.lcm_esd_check_table[0].count        = 3;
 	params->dsi.lcm_esd_check_table[0].para_list[0] = 0x80;
@@ -547,7 +542,6 @@ static void lcm_get_params(LCM_PARAMS *params)
 	params->dsi.lcm_esd_check_table[1].cmd		= 0xD9;
 	params->dsi.lcm_esd_check_table[1].count	= 1;
 	params->dsi.lcm_esd_check_table[1].para_list[0] = 0x80;
-
 }
 
 static void lcm_init_power(void)
@@ -599,14 +593,14 @@ static void lcm_resume_power(void)
 static void set_vsp_vsn_pin(int value)
 {
 	if (value) {
-		mt_set_gpio_out(GPIO_65132_ENP, GPIO_OUT_ONE);
+        gpio_direction_output(3, GPIO_OUT_ONE);
 		MDELAY(15);
-		mt_set_gpio_out(GPIO_65132_ENN, GPIO_OUT_ONE);
+		gpio_direction_output(4, GPIO_OUT_ONE);
 		MDELAY(15);
 	} else {
-		mt_set_gpio_out(GPIO_65132_ENN, GPIO_OUT_ZERO);
+        gpio_direction_output(4, GPIO_OUT_ZERO);
 		MDELAY(15);
-		mt_set_gpio_out(GPIO_65132_ENP, GPIO_OUT_ZERO);
+		gpio_direction_output(3, GPIO_OUT_ZERO);
 		MDELAY(15);
 	}
 }
@@ -614,9 +608,9 @@ static void set_vsp_vsn_pin(int value)
 static void set_reset_gpio_pin(int value)
 {
 	if(value) {
-		mt_set_gpio_out(GPIO_LCM_RST, GPIO_OUT_ONE);
+		gpio_direction_output(146, GPIO_OUT_ONE);
 	} else {
-		mt_set_gpio_out(GPIO_LCM_RST, GPIO_OUT_ZERO);
+		gpio_direction_output(146, GPIO_OUT_ZERO);
 	}
 }
 

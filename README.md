@@ -4,7 +4,7 @@
 ![P1m](http://www.smartgizmo.net/wp-content/uploads/2015/10/Lenovo-VIBE-P1m-1.jpg)
 
 * Working now:
-1) Lcm driver hx8394d_hd720_dsi_vdo_tianma work
+1) All lcm drivers work
 2) Touchscreen
 3) Sim Card
 4) Headset
@@ -19,5 +19,4 @@
 * Not working now:
 1) Cameras
 2) Flashlight
-3) Lcm driver otm1284a_hd720_dsi_vdo_baolongda not working
-4) Auto Focus
+3) Auto Focus

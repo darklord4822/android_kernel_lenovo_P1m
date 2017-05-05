@@ -37,9 +37,9 @@
 #include "kd_imgsensor_define.h" 
 #include "kd_imgsensor_errcode.h"
 
-#include "ov8865mipiraw_Sensor.h"
+#include "ov8865mipiraw_Sensor_sunny.h"
 
-#define PFX "OV8865"
+#define PFX "OV8865_SUNNY"
 //#define LOG_WRN(format, args...) xlog_printk(ANDROID_LOG_WARN ,PFX, "[%S] " format, __FUNCTION__, ##args)
 //#defineLOG_INF(format, args...) xlog_printk(ANDROID_LOG_INFO ,PFX, "[%s] " format, __FUNCTION__, ##args)
 //#define LOG_DBG(format, args...) xlog_printk(ANDROID_LOG_DEBUG ,PFX, "[%S] " format, __FUNCTION__, ##args)
@@ -48,7 +48,7 @@
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 
 static imgsensor_info_struct imgsensor_info = { 
-	.sensor_id = OV8865_SENSOR_ID,
+	.sensor_id = OV8865_SUNNY_SENSOR_ID,
 	
 	.checksum_value = 0xfdd9c02a,
 	
@@ -144,7 +144,8 @@ static imgsensor_info_struct imgsensor_info = {
 	.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW_B,
 	.mclk = 24,
 	.mipi_lane_num = SENSOR_MIPI_4_LANE,
-	.i2c_addr_table = {0x6C,0x42,0xff},
+//	.i2c_addr_table = {0x6C,0x42,0xff},
+	.i2c_addr_table = {0x6C,0xff},
 };
 
 
@@ -2129,7 +2130,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 	kal_uint8 retry = 2;
 
 	write_cmos_sensor(0x0103,0x01);// Reset sensor
-    mdelay(2);
+	mdelay(2);
 	
 	//module have defferent  i2c address;
 	while (imgsensor_info.i2c_addr_table[i] != 0xff) {
@@ -2138,7 +2139,8 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		spin_unlock(&imgsensor_drv_lock);
 		do {
 			*sensor_id = ((read_cmos_sensor(0x300B) << 8) | read_cmos_sensor(0x300C));
-			if (*sensor_id == imgsensor_info.sensor_id) {				
+//			if (*sensor_id == imgsensor_info.sensor_id) {
+			if (*sensor_id == 0x8865) {	
 				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);	  
 				//return ERROR_NONE;
 				break;
@@ -2150,7 +2152,8 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		i++;
 		retry = 2;
 	}
-	if (*sensor_id != imgsensor_info.sensor_id) {
+//	if (*sensor_id != imgsensor_info.sensor_id) {
+	if (*sensor_id != 0x8865) {
 		// if Sensor ID is not correct, Must set *sensor_id to 0xFFFFFFFF 
 		*sensor_id = 0xFFFFFFFF;
 		return ERROR_SENSOR_CONNECT_FAIL;
@@ -2170,7 +2173,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 			read_otp_info(info_index, &current_otp);
 	
 		LOG_INF("%s Module ID: 0x%x \n", __FUNCTION__, current_otp.module_integrator_id);
-		if(current_otp.module_integrator_id != 0x7){
+		if(current_otp.module_integrator_id != 0x1){
 			*sensor_id = 0xFFFFFFFF;
 			LOG_INF("Read Sensor ID Fail = 0x%x\n", *sensor_id);
 			return ERROR_SENSOR_CONNECT_FAIL;
@@ -2223,7 +2226,7 @@ static kal_uint32 open(void)
 		spin_unlock(&imgsensor_drv_lock);
 		do {
 			sensor_id = ((read_cmos_sensor(0x300B) << 8) | read_cmos_sensor(0x300C));
-			if (sensor_id == imgsensor_info.sensor_id) {				
+			if (sensor_id == 0x8865) {				
 				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);	  
 				break;
 			}	
@@ -2236,7 +2239,7 @@ static kal_uint32 open(void)
 			break;
 		retry = 2;
 	}		 
-	if (imgsensor_info.sensor_id != sensor_id)
+	if (0x8865 != sensor_id)
 		return ERROR_SENSOR_CONNECT_FAIL;
 	
 	/* initail sequence write in  */
@@ -2901,10 +2904,10 @@ static SENSOR_FUNCTION_STRUCT sensor_func = {
 	close
 };
 
-UINT32 OV8865_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
+UINT32 OV8865_MIPI_RAW_Sunny_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 {
 	/* To Do : Check Sensor status here */
 	if (pfFunc!=NULL)
 		*pfFunc=&sensor_func;
 	return ERROR_NONE;
-}	/*	OV8865_MIPI_RAW_SensorInit	*/
+}	/*	OV8865_MIPI_RAW_Sunny_SensorInit	*/

@@ -24,8 +24,11 @@
 #include <linux/mutex.h>
 #include <linux/i2c.h>
 #include <linux/leds.h>
-
-
+#include <mt-plat/mt_gpio.h>
+#include <mt-plat/mt_gpio_core.h>
+#include <linux/string.h>
+#include <linux/gpio.h>
+#include <linux/pinctrl/consumer.h>
 
 /******************************************************************************
  * Debug configuration
@@ -71,8 +74,8 @@ static DEFINE_MUTEX(g_strobeSem);
 
 static struct work_struct workTimeOut;
 
-/* #define FLASH_GPIO_ENF GPIO12 */
-/* #define FLASH_GPIO_ENT GPIO13 */
+#define FLASH_GPIO_ENF 42
+#define FLASH_GPIO_ENT 43
 
 static int g_bLtVersion;
 
@@ -311,6 +314,19 @@ int FL_Enable(void)
 	readReg(0xa);
 	readReg(0xb);
 
+	if(g_duty==0)
+	{
+		gpio_direction_output(FLASH_GPIO_ENT, 0);
+		gpio_direction_output(FLASH_GPIO_ENF, 1);
+		PK_DBG(" FL_Enable line=%d\n",__LINE__);
+	}
+	else
+	{
+		gpio_direction_output(FLASH_GPIO_ENF, 0);
+		gpio_direction_output(FLASH_GPIO_ENT, 1);
+		PK_DBG(" FL_Enable line=%d\n",__LINE__);
+	}
+
 	return 0;
 }
 
@@ -325,6 +341,8 @@ int FL_Disable(void)
 	buf[1] = 0x00;
 	/* iWriteRegI2C(buf , 2, STROBE_DEVICE_ID); */
 	LM3642_write_reg(LM3642_i2c_client, buf[0], buf[1]);
+    gpio_direction_output(FLASH_GPIO_ENT, 0);
+	gpio_direction_output(FLASH_GPIO_ENF, 0);
 	PK_DBG(" FL_Disable line=%d\n", __LINE__);
 	return 0;
 }
@@ -374,16 +392,8 @@ int FL_Init(void)
 
 	PK_DBG(" FL_Init regVal0=%d isLtVer=%d\n", regVal0, g_bLtVersion);
 
-
-/*
-	if(mt_set_gpio_mode(FLASH_GPIO_ENT,GPIO_MODE_00)){PK_DBG("[constant_flashlight] set gpio mode failed!!\n");}
-    if(mt_set_gpio_dir(FLASH_GPIO_ENT,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!!\n");}
-    if(mt_set_gpio_out(FLASH_GPIO_ENT,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
-
-	if(mt_set_gpio_mode(FLASH_GPIO_ENF,GPIO_MODE_00)){PK_DBG("[constant_flashlight] set gpio mode failed!!\n");}
-    if(mt_set_gpio_dir(FLASH_GPIO_ENF,GPIO_DIR_OUT)){PK_DBG("[constant_flashlight] set gpio dir failed!!\n");}
-    if(mt_set_gpio_out(FLASH_GPIO_ENF,GPIO_OUT_ZERO)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
-    */
+    if(gpio_direction_output(FLASH_GPIO_ENT, 0)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
+    if(gpio_direction_output(FLASH_GPIO_ENF, 0)){PK_DBG("[constant_flashlight] set gpio failed!!\n");}
 
 
 

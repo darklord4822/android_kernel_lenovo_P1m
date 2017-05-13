@@ -45,13 +45,13 @@
 
 #define LOG_INF(format, args...)    xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
 
-//#define HI551AVC_OTP_FUNCTION
+#define HI551AVC_OTP_FUNCTION
 #ifdef HI551AVC_OTP_FUNCTION
 static kal_uint32 r_ratio;
 static kal_uint32 b_ratio;
 void HI551AVC_Sensor_update_wb_gain(USHORT r_gain, USHORT b_gain);
 kal_uint16 HI551AVC_Sensor_OTP_read(kal_uint16 otp_addr,kal_uint16 otp_addr_one,kal_uint16 otp_addr_two);
-kal_uint16 HI551AVC_Sensor_calc_wbdata();
+kal_uint16 HI551AVC_Sensor_calc_wbdata(void);
 #endif
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
@@ -600,7 +600,7 @@ void HI551AVC_Sensor_OTP_info(void)
 	//LOG_INF("liukun otp_mapping_id = %d \n", otp_mapping_id);
 }
 
-kal_uint16 HI551AVC_Sensor_calc_wbdata()
+kal_uint16 HI551AVC_Sensor_calc_wbdata(void)
 {
 	uint16_t wbcheck = 0, checksum = 0, wb_flag = 0;
 	uint16_t r_gain = 0, 

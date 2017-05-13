@@ -1801,8 +1801,8 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 
 /* sensor part */
 		/* lenovo-sw.lily8.2015-10-13.add begin */
-		tfa9897@0 {
-			compatible = "mediatek,tfa9897";
+		ext_speaker_amp@0 {
+			compatible = "mediatek,ext_speaker_amp";
 		};
 		/* lenovo-sw.lily8,2015-10-13.add end */
 		hwmsensor@0 {

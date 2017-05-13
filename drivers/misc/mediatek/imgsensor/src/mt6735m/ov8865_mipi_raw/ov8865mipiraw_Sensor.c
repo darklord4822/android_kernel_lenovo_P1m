@@ -191,7 +191,7 @@ static void write_cmos_sensor(kal_uint32 addr, kal_uint32 para)
 	iWriteRegI2C(pu_send_cmd, 3, imgsensor.i2c_write_id);
 }
 
-//#define OTP_CALIBRATION
+#define OTP_CALIBRATION
 #ifdef OTP_CALIBRATION
 #define OTP_DRV_START_ADDR 0x7010
 #define OTP_DRV_INFO_GROUP_COUNT 3
@@ -666,7 +666,7 @@ static int read_otp_lenc(int index, struct otp_struct * otp_ptr)
 	return 0;
 }
 
-static int update_otp_wb()
+static int update_otp_wb(void)
 {
 	int temp;
 	int rg,bg;
@@ -712,7 +712,7 @@ static int update_otp_wb()
 	return 0;
 }
 
-static int update_otp_lenc()
+static int update_otp_lenc(void)
 {
 	int i;
 	int temp;

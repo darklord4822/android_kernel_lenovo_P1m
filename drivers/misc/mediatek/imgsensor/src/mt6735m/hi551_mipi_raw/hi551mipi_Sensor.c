@@ -45,13 +45,13 @@
 
 #define LOG_INF(format, args...)    xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
 
-//#define HI551_OTP_FUNCTION
+#define HI551_OTP_FUNCTION
 #ifdef HI551_OTP_FUNCTION
 static kal_uint32 r_ratio;
 static kal_uint32 b_ratio;
 void HI551_Sensor_update_wb_gain(USHORT r_gain, USHORT b_gain);
 kal_uint16 HI551_Sensor_OTP_read(kal_uint16 otp_addr,kal_uint16 otp_addr_one,kal_uint16 otp_addr_two);
-kal_uint16 HI551_Sensor_calc_wbdata();
+kal_uint16 HI551_Sensor_calc_wbdata(void);
 #endif
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
@@ -540,7 +540,7 @@ void Hi551_Sensor_OTP_info(void)
 		infocheck= HI551_Sensor_OTP_read(0x181c,0,0);
     	break;
 		case 0xd0:
-              ModuleHouseID = HI551_Sensor_OTP_read(0x1a14,0,0);
+        ModuleHouseID = HI551_Sensor_OTP_read(0x1a14,0,0);
 		CV = HI551_Sensor_OTP_read(0x1a15,0,0);
 		YEAR = HI551_Sensor_OTP_read(0x1a16,0,0);
 		MONTH= HI551_Sensor_OTP_read(0x1a17,0,0);
@@ -559,7 +559,7 @@ void Hi551_Sensor_OTP_info(void)
 		infocheck= HI551_Sensor_OTP_read(0x1a2e,0,0);
 		break;
 		case 0xf4:
-              ModuleHouseID = HI551_Sensor_OTP_read(0x1c23,0,0);
+        ModuleHouseID = HI551_Sensor_OTP_read(0x1c23,0,0);
 		CV = HI551_Sensor_OTP_read(0x1c24,0,0);
 		YEAR = HI551_Sensor_OTP_read(0x1c25,0,0);
 		MONTH= HI551_Sensor_OTP_read(0x1c26,0,0);
@@ -598,7 +598,7 @@ void Hi551_Sensor_OTP_info(void)
 	//LOG_INF("liukun otp_mapping_id = %d \n", otp_mapping_id);
 }
 
-kal_uint16 HI551_Sensor_calc_wbdata()
+kal_uint16 HI551_Sensor_calc_wbdata(void)
 {
 	uint16_t wbcheck = 0, checksum = 0, wb_flag = 0;
 	uint16_t r_gain = 0, 

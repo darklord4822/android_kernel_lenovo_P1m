@@ -83,11 +83,8 @@ int FL_Enable(void)
 {
 	PK_DBG(" FL_Enable line=%d\n", __LINE__);
 
-if ((level > 0) && (level <= 128))
-	{
 	flashlight_gpio_set(FLASHLIGHT_PIN_HWEN, STATE_HIGH);
 	flashlight_gpio_set(FLASHLIGHT_PIN_TORCH, STATE_HIGH);
-	}
 	return 0;
 }
 

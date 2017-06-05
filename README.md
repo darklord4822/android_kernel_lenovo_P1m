@@ -16,8 +16,8 @@
 10) OTG
 11) Led indicators
 12) And other
-13) Main Camera work
+13) Main Camera work (first revision)
+14) Flashlight
+15) Auto Focus (first revision)
 * Not working now:
 1) Front Camera (i dont know)
-2) Flashlight
-3) Auto Focus

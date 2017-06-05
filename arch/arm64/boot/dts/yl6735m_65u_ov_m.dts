@@ -21,6 +21,10 @@ memory@00000000 {
 		};
 
 	};
+	
+	flashlight:flashlight {
+		compatible = "mediatek,mt6735-flashlight";
+	};
 	led0:led@0 {
 		compatible = "mediatek,red";
 		led_mode = <0>;
@@ -588,3 +592,111 @@ memory@00000000 {
 	status = "okay";
 };
 /* USB GPIO Kernal Standardization end */
+
+&pio {
+
+	ssw_hot_plug_mode1:ssw@1 {
+
+		pins_cmd0_dat {
+			pins = <PINMUX_GPIO8__FUNC_GPIO8>;
+			bias-disable;
+		};
+
+		pins_cmd1_dat {
+			pins = <PINMUX_GPIO9__FUNC_GPIO9>;
+			bias-disable;
+		};
+	};
+
+	ssw_hot_plug_mode2:ssw@2 {
+
+		pins_cmd0_dat {
+			pins = <PINMUX_GPIO8__FUNC_GPIO8>;
+			bias-disable;
+		};
+
+		pins_cmd1_dat {
+			pins = <PINMUX_GPIO9__FUNC_GPIO9>;
+			bias-disable;
+		};
+	};
+};
+
+/* FLASHLIGHT GPIO standardization */
+&pio {
+        flashlight_pins_default: default {
+        };
+
+        flashlight_pins_hwen_high: hwen_high {
+            pins_cmd_dat {
+                        pins = <PINMUX_GPIO42__FUNC_GPIO42>;
+                        slew-rate = <1>;
+                        output-high;
+                };
+        };
+
+        flashlight_pins_hwen_low: hwen_low {
+            pins_cmd_dat {
+                        pins = <PINMUX_GPIO42__FUNC_GPIO42>;
+                        slew-rate = <1>;
+                        output-low;
+                };
+        };
+        
+        flashlight_pins_torch_high: torch_high {
+            pins_cmd_dat {
+                        pins = <PINMUX_GPIO43__FUNC_GPIO43>;
+                        slew-rate = <1>;
+                        output-high;
+                };
+        };
+
+        flashlight_pins_torch_low: torch_low {
+            pins_cmd_dat {
+                        pins = <PINMUX_GPIO43__FUNC_GPIO43>;
+                        slew-rate = <1>;
+                        output-low;
+                };
+        };
+
+};
+
+&flashlight {
+        pinctrl-names = "default", "hwen_high", "hwen_low", "torch_high", "torch_low";
+        pinctrl-0 = <&flashlight_pins_default>;
+        pinctrl-1 = <&flashlight_pins_hwen_high>;
+        pinctrl-2 = <&flashlight_pins_hwen_low>;
+        pinctrl-3 = <&flashlight_pins_torch_high>;
+        pinctrl-4 = <&flashlight_pins_torch_low>;
+        status = "okay";
+
+};
+/* FLASHLIGHT GPIO end */
+
+/* AUDIO GPIO standardization */
+&audgpio {
+	pinctrl-names = "default", "extamp-pullhigh", "extamp-pulllow";
+	pinctrl-0 = <&AUD_pins_default>;
+	pinctrl-1 = <&AUD_pins_extamp_high>;
+	pinctrl-2 = <&AUD_pins_extamp_low>;
+	status = "okay";
+};
+&pio {
+	AUD_pins_default: audiodefault {
+	};
+	AUD_pins_extamp_high: audexamphigh {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO80__FUNC_GPIO80>;
+				slew-rate = <1>;
+				output-high;
+		};
+	};
+	AUD_pins_extamp_low: audexamplow {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO80__FUNC_GPIO80>;
+				slew-rate = <1>;
+				output-low;
+		};
+	};
+};
+/* AUDIO end */

@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 #ifndef _KD_FLASHLIGHT_H
 #define _KD_FLASHLIGHT_H
 
@@ -99,6 +112,17 @@ typedef enum {
 	FLASHLIGHT_XENON_IGBT	/* IGBT strobe type Xenon */
 } FLASHLIGHT_TYPE_ENUM;
 
+/* flashlight pinctrl enum */
+typedef enum {
+	FLASHLIGHT_PIN_HWEN,	/* GPIO pin HWEN */
+	FLASHLIGHT_PIN_TORCH,	/* GPIO pin TORCH */
+	FLASHLIGHT_PIN_FLASH	/* GPIO pin FLASH */
+} FLASHLIGHT_GPIO_PIN_ENUM;
+
+typedef enum {
+	STATE_LOW,
+	STATE_HIGH
+} FLASHLIGHT_GPIO_STATE_ENUM;
 
 #define FLASHLIGHT_MAGIC 'S'
 /* S means "set through a ptr" */
@@ -212,4 +236,9 @@ bool mtk_is_host_mode(void);
 int mt6332_OpenBoost4Flash(void);
 int mt6332_CloseBoost4Flash(void);
 
+/* GPIO pinctrl */
+int flashlight_gpio_init(struct platform_device *pdev);
+int flashlight_gpio_set(int pin, int state);
+int flashlight_gpio_hwen_high(void);
+int flashlight_gpio_hwen_low(void);
 #endif

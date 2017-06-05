@@ -11,11 +11,9 @@
  * Description:
  * ------------
  *	 Source code of Sensor driver
- 
- *nick <<PengtaoFan>>.modify at: 2015-02-02   19:12:15
- *    nick :R8865 driver full size  R3767 need modifyto R3767=0x1e 
  *
- *	PengtaoFan
+ *
+ *---------------------------------------------------------------------------
  * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
  *============================================================================
  ****************************************************************************/
@@ -29,9 +27,10 @@
 #include <linux/fs.h>
 #include <asm/atomic.h>
 //#include <asm/system.h>
-#include <linux/xlog.h>
-
+//#include <linux/xlog.h>
 #include "kd_camera_typedef.h"
+
+
 #include "kd_camera_hw.h"
 #include "kd_imgsensor.h"
 #include "kd_imgsensor_define.h" 
@@ -39,13 +38,13 @@
 
 #include "ov8865mipiraw_Sensor.h"
 
+
+
 #define PFX "OV8865"
-//#define LOG_WRN(format, args...) xlog_printk(ANDROID_LOG_WARN ,PFX, "[%S] " format, __FUNCTION__, ##args)
-//#defineLOG_INF(format, args...) xlog_printk(ANDROID_LOG_INFO ,PFX, "[%s] " format, __FUNCTION__, ##args)
-//#define LOG_DBG(format, args...) xlog_printk(ANDROID_LOG_DEBUG ,PFX, "[%S] " format, __FUNCTION__, ##args)
-#define LOG_INF(format, args...)	xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
+#define LOG_INF(format, args...)	pr_debug(PFX "[%s] " format, __FUNCTION__, ##args)
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
+
 
 static imgsensor_info_struct imgsensor_info = { 
 	.sensor_id = OV8865_SENSOR_ID,
@@ -129,7 +128,7 @@ static imgsensor_info_struct imgsensor_info = {
 	.ae_ispGain_delay_frame = 2,
 	.ihdr_support = 0,	  //1, support; 0,not support
 	.ihdr_le_firstline = 0,  //1,le first ; 0, se first
-	.sensor_mode_num = 5,	  
+	.sensor_mode_num = 5,	  //support sensor mode num ,don't support Slow motion
 	
 	.cap_delay_frame = 2, 
 	.pre_delay_frame = 2, 

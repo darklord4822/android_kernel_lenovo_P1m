@@ -140,8 +140,22 @@ static ssize_t kpd_show_call_state(struct device_driver *ddri, char *buf)
 
 static DRIVER_ATTR(kpd_call_state, S_IWUSR | S_IRUGO, kpd_show_call_state, kpd_store_call_state);
 
+#if KEY_POWERSAVE
+static int now_powersave_key_state = 0;
+static ssize_t kpd_show_now_state(struct device_driver *ddri, char *buf)
+{
+	ssize_t res;
+	res = snprintf(buf, PAGE_SIZE, "%d\n", now_powersave_key_state);
+	return res;
+}
+static DRIVER_ATTR(kpd_now_state, S_IRUGO, kpd_show_now_state, NULL);
+#endif
+
 static struct driver_attribute *kpd_attr_list[] = {
 	&driver_attr_kpd_call_state,
+#if KEY_POWERSAVE
+	&driver_attr_kpd_now_state,
+#endif
 };
 
 /*----------------------------------------------------------------------------*/
@@ -416,6 +430,13 @@ static void kpd_keymap_handler(unsigned long data)
 			input_report_key(kpd_input_dev, linux_keycode, pressed);
 			input_sync(kpd_input_dev);
 			kpd_print("report Linux keycode = %u\n", linux_keycode);
+#if KEY_POWERSAVE
+			if (linux_keycode == KEY_POWERSAVE)
+				if (pressed)
+					now_powersave_key_state = 1;
+				else
+					now_powersave_key_state = 0;
+#endif
 		}
 	}
 
@@ -886,6 +907,10 @@ static int kpd_pdrv_probe(struct platform_device *pdev)
 		input_unregister_device(kpd_input_dev);
 		return r;
 	}
+
+#if KEY_POWERSAVE
+	kpd_irq_handler(NULL, NULL);
+#endif
 	mt_eint_register();
 
 #ifndef KPD_EARLY_PORTING	/*add for avoid early porting build err the macro is defined in custom file */

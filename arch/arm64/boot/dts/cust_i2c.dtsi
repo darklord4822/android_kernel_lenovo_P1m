@@ -69,8 +69,3 @@
 		compatible = "mediatek,strobe_main";
 		reg = <0x63>;
 	};
-
-    mtksmartpa@68 {
-		compatible = "mediatek,mtksmartpa";
-    };
-};

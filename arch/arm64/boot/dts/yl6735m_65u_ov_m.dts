@@ -25,6 +25,9 @@ memory@00000000 {
 	flashlight:flashlight {
 		compatible = "mediatek,mt6735-flashlight";
 	};
+    tfa9897:tfa9897 {
+	   compatible = "mediatek,tfa9897";
+	  };
 	led0:led@0 {
 		compatible = "mediatek,red";
 		led_mode = <0>;
@@ -65,6 +68,12 @@ memory@00000000 {
 		compatible = "mediatek,lcd-backlight";
 		led_mode = <5>;
 		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+	led7:led@7 {
+		compatible = "mediatek,flash";
+		led_mode = <6>;
+		data = <0>;
 		pwm_config = <0 0 0 0 0>;
 	};
 	vibrator0:vibrator@0 {
@@ -673,29 +682,53 @@ memory@00000000 {
 };
 /* FLASHLIGHT GPIO end */
 
-/* AUDIO GPIO standardization */
-&audgpio {
-	pinctrl-names = "default", "extamp-pullhigh", "extamp-pulllow";
+/* AUDIO TFA9897 GPIO standardization */
+&tfa9897 {
+	pinctrl-names = "default", "aud_ext_dacrst_gpio1", "aud_ext_dacrst_gpio0", "nxplrck_mode", "nxpbck_mode", "nxpdatai_mode", "nxpdatao_mode";
 	pinctrl-0 = <&AUD_pins_default>;
-	pinctrl-1 = <&AUD_pins_extamp_high>;
-	pinctrl-2 = <&AUD_pins_extamp_low>;
+	pinctrl-1 = <&AUD_pins_dacrst_high>;
+	pinctrl-2 = <&AUD_pins_dacrst_low>;
+	pinctrl-3 = <&AUD_pins_nxplrck_mode>;
+	pinctrl-4 = <&AUD_pins_nxpbck_mode>;
+	pinctrl-5 = <&AUD_pins_nxpdatai_mode>;
+	pinctrl-6 = <&AUD_pins_nxpdatao_mode>;
 	status = "okay";
 };
 &pio {
 	AUD_pins_default: audiodefault {
 	};
-	AUD_pins_extamp_high: audexamphigh {
+	AUD_pins_dacrst_high: aud_ext_dacrst_gpio1 {
 		pins_cmd_dat {
 			pins = <PINMUX_GPIO80__FUNC_GPIO80>;
 				slew-rate = <1>;
 				output-high;
 		};
 	};
-	AUD_pins_extamp_low: audexamplow {
+	AUD_pins_dacrst_low: aud_ext_dacrst_gpio0 {
 		pins_cmd_dat {
 			pins = <PINMUX_GPIO80__FUNC_GPIO80>;
 				slew-rate = <1>;
 				output-low;
+		};
+	};
+	AUD_pins_nxplrck_mode: nxplrck_mode {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO68__FUNC_GPIO68>;
+		};
+	};
+	AUD_pins_nxpbck_mode: nxpbck_mode {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO66__FUNC_GPIO66>;
+		};
+	};
+	AUD_pins_nxpdatai_mode: nxpdatai_mode {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO78__FUNC_GPIO78>;
+		};
+	};
+	AUD_pins_nxpdatao_mode: nxpdatao_mode {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO67__FUNC_GPIO67>;
 		};
 	};
 };

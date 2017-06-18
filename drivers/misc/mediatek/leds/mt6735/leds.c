@@ -33,6 +33,7 @@
 #endif
 #include "lcm_drv.h"
 extern LCM_DRIVER  *lcm_drv;
+extern long flashlight_led_setby_gpio(char *led_name, int level);
 
 #include <mt-plat/mt_pwm.h>
 #include <mt-plat/upmu_common.h>
@@ -88,6 +89,7 @@ char *leds_name[MT65XX_LED_TYPE_TOTAL] = {
 	"keyboard-backlight",
 	"button-backlight",
 	"lcd-backlight",
+	"flash",
 };
 
 struct cust_mt65xx_led *pled_dtsi = NULL;
@@ -264,6 +266,12 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 					    (long)disp_bls_set_backlight;
 					LEDS_DEBUG
 					    ("kernel:the backlight hw mode is BLS.\n");
+					break;
+				case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+					pled_dtsi[i].data =
+					    (long)flashlight_led_setby_gpio;
+					LEDS_DEBUG
+					    ("kernel:the flashlight hw mode is gpio.\n");
 					break;
 				default:
 					break;
@@ -904,10 +912,9 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 			bl_brightness_hal = level;
 		return ((cust_set_brightness) (cust->data)) (level);
 
-#ifdef CONFIG_WT_CUST_TORCH_FLASHLIGHT
-		case MT65XX_LED_MODE_CUST_FLASHLIGHT:
-			return ((cust_flashlight_brightness_set)(cust->data))(cust->name,level);
-#endif
+	case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+		if (strcmp(cust->name, "flash") == 0)
+		return ((cust_flashlight_brightness_set)(cust->data))(cust->name,level);
 	case MT65XX_LED_MODE_NONE:
 	default:
 		break;

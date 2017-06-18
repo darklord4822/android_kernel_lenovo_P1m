@@ -48,6 +48,7 @@
 /*****************************************************************************
  *                E X T E R N A L   R E F E R E N C E S
  *****************************************************************************/
+#define CONFIG_MTK_NXP_TFA9897 1
 #include "AudDrv_NXP.h"
 #ifdef CONFIG_MTK_NXP_TFA9897
 #include <linux/input.h>	/* BUS_I2C */
@@ -79,8 +80,7 @@
 #ifdef CONFIG_MTK_NXP_TFA9897
 #define I2C_MASTER_CLOCK       400
 #endif
-//#define NXPEXTSPK_I2C_DEVNAME "TFA98XX"
-#define NXPEXTSPK_I2C_DEVNAME "i2c_smartpa"
+#define NXPEXTSPK_I2C_DEVNAME "tfa9897"
 
 /*****************************************************************************
 *           DEFINE AND CONSTANT
@@ -103,7 +103,7 @@ char ReadBuffer[RW_BUFFER_LENGTH];
 
 #ifdef CONFIG_MTK_NXP_TFA9897
 static u8 *Tfa9890I2CDMABuf_va = NULL;
-static u32 Tfa9890I2CDMABuf_pa = NULL;
+static dma_addr_t Tfa9890I2CDMABuf_pa;
 #endif
 
 // new I2C register method
@@ -623,7 +623,7 @@ static struct file_operations AudDrv_nxpspk_fops =
 static struct miscdevice AudDrv_nxpspk_device =
 {
     .minor = MISC_DYNAMIC_MINOR,
-    .name = "smartpa_i2c",
+    .name = "tfa9897",
     .fops = &AudDrv_nxpspk_fops,
 };
 #else

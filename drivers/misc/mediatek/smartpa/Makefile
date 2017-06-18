@@ -1,1 +1,1 @@
-obj-$(CONFIG_ARCH_MT6735M) += mt6735/
+obj-y += mt6735/

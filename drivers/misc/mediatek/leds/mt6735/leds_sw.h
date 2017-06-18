@@ -13,6 +13,7 @@ enum mt65xx_led_type {
 	MT65XX_LED_TYPE_KEYBOARD,
 	MT65XX_LED_TYPE_BUTTON,
 	MT65XX_LED_TYPE_LCD,
+    MT65XX_LED_TYPE_FLASHLIGHT,
 	MT65XX_LED_TYPE_TOTAL,
 };
 
@@ -22,7 +23,8 @@ enum mt65xx_led_mode {
 	MT65XX_LED_MODE_GPIO,
 	MT65XX_LED_MODE_PMIC,
 	MT65XX_LED_MODE_CUST_LCM,
-	MT65XX_LED_MODE_CUST_BLS_PWM
+	MT65XX_LED_MODE_CUST_BLS_PWM,
+	MT65XX_LED_MODE_CUST_FLASHLIGHT
 };
 
 /******************************************************************************
@@ -32,6 +34,7 @@ enum mt65xx_led_mode {
 /* backlight call back function */
 typedef int (*cust_brightness_set) (int level, int div);
 typedef int (*cust_set_brightness) (int level);
+typedef int (*cust_flashlight_brightness_set)(char *led_name, int level);
 
 /* 10bit backlight level */
 #define LED_INCREASE_LED_LEVEL_MTKPATCH

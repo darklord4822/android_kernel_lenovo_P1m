@@ -824,7 +824,7 @@ static void mt65xx_leds_shutdown(struct platform_device *pdev)
 			LEDS_DRV_DEBUG("backlight control through BLS!!1\n");
 			((cust_set_brightness) (g_leds_data[i]->cust.data)) (0);
 			break;
-		case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+		case MT65XX_LED_MODE_CUST_FLASH:
 			((cust_flashlight_brightness_set)(g_leds_data[i]->cust.data))(g_leds_data[i]->cust.name, 0);
 			break;
 		case MT65XX_LED_MODE_NONE:

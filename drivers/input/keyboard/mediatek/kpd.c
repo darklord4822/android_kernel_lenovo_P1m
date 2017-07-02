@@ -421,6 +421,10 @@ static void kpd_keymap_handler(unsigned long data)
 				kpd_print("(%s) HW keycode = %u\n", pressed ? "pressed" : "released", hw_keycode);
 			BUG_ON(hw_keycode >= KPD_NUM_KEYS);
 			linux_keycode = kpd_keymap[hw_keycode];
+			if (linux_keycode == KEY_HOME) {
+				kpd_print("Disable mute switch");
+				now_powersave_key_state = 0;
+			}
 			if (unlikely(linux_keycode == 0)) {
 				kpd_print("Linux keycode = 0\n");
 				continue;
@@ -432,10 +436,11 @@ static void kpd_keymap_handler(unsigned long data)
 			kpd_print("report Linux keycode = %u\n", linux_keycode);
 #if KEY_POWERSAVE
 			if (linux_keycode == KEY_POWERSAVE)
-				if (pressed)
+				if (pressed) {
+ 					now_powersave_key_state = 1;
+				} else {
 					now_powersave_key_state = 1;
-				else
-					now_powersave_key_state = 0;
+                }
 #endif
 		}
 	}

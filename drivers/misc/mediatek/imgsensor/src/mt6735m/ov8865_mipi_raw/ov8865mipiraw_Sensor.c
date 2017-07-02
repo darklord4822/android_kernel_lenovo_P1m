@@ -28,10 +28,8 @@
 #include <asm/atomic.h>
 //#include <asm/system.h>
 //#include <linux/xlog.h>
+
 #include "kd_camera_typedef.h"
-
-
-#include "kd_camera_hw.h"
 #include "kd_imgsensor.h"
 #include "kd_imgsensor_define.h" 
 #include "kd_imgsensor_errcode.h"
@@ -128,7 +126,7 @@ static imgsensor_info_struct imgsensor_info = {
 	.ae_ispGain_delay_frame = 2,
 	.ihdr_support = 0,	  //1, support; 0,not support
 	.ihdr_le_firstline = 0,  //1,le first ; 0, se first
-	.sensor_mode_num = 5,	  //support sensor mode num ,don't support Slow motion
+	.sensor_mode_num = 5,	  
 	
 	.cap_delay_frame = 2, 
 	.pre_delay_frame = 2, 
@@ -741,7 +739,7 @@ static void set_dummy(void)
 
 static void set_max_framerate(UINT16 framerate,kal_bool min_framelength_en)
 {
-	kal_int16 dummy_line;
+	//kal_int16 dummy_line;
 	kal_uint32 frame_length = imgsensor.frame_length;
 
 	LOG_INF("framerate = %d, min framelength should enable? \n", framerate,min_framelength_en);
@@ -774,7 +772,7 @@ static void set_shutter(kal_uint16 shutter)
 {
     unsigned long flags;
     kal_uint16 realtime_fps = 0;
-    kal_uint32 frame_length = 0;
+    //kal_uint32 frame_length = 0;
     spin_lock_irqsave(&imgsensor_drv_lock, flags);
     imgsensor.shutter = shutter;
     spin_unlock_irqrestore(&imgsensor_drv_lock, flags);
@@ -1848,7 +1846,7 @@ static void normal_video_setting(kal_uint16 currefps)
 
 
 
-static void hs_video_setting(kal_uint16 currefps)
+static void hs_video_setting(void)
 {
 	LOG_INF("Enter!\n");
 
@@ -2137,12 +2135,13 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		spin_unlock(&imgsensor_drv_lock);
 		do {
 			*sensor_id = ((read_cmos_sensor(0x300B) << 8) | read_cmos_sensor(0x300C));
-			if (*sensor_id == imgsensor_info.sensor_id) {				
+			if (*sensor_id == imgsensor_info.sensor_id) {			
 				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);	  
-				//return ERROR_NONE;
-				break;
+				printk("--->>>OV8865 i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);	  
+				return ERROR_NONE;
 			}	
 			LOG_INF("Read sensor id fail, write id: 0x%x, id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);
+			printk("--->>>OV8865 Read sensor id fail, write id: 0x%x, id: 0x%x, sensor_id:0x%x \n", imgsensor.i2c_write_id,*sensor_id,imgsensor_info.sensor_id);
 			retry--;
 		} while(retry > 0);
 		
@@ -2324,7 +2323,8 @@ static kal_uint32 preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 					  MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
 	LOG_INF("E\n");
-
+        
+        
 	spin_lock(&imgsensor_drv_lock);
 	imgsensor.sensor_mode = IMGSENSOR_MODE_PREVIEW;
 	imgsensor.pclk = imgsensor_info.pre.pclk;
@@ -2425,7 +2425,7 @@ static kal_uint32 hs_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//imgsensor.current_fps = imgsensor_info.hs_video.max_framerate;;
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
-    hs_video_setting(imgsensor.current_fps);
+	hs_video_setting();
 	
 	return ERROR_NONE;
 }	/*	hs_video   */
@@ -2490,8 +2490,8 @@ static kal_uint32 get_info(MSDK_SCENARIO_ID_ENUM scenario_id,
 	sensor_info->SensorResetDelayCount = 5; /* not use */
 
 	sensor_info->SensroInterfaceType = imgsensor_info.sensor_interface_type;
-	//sensor_info->MIPIsensorType = imgsensor_info.mipi_sensor_type;
-	//sensor_info->SettleDelayMode = imgsensor_info.mipi_settle_delay_mode;
+	sensor_info->MIPIsensorType = imgsensor_info.mipi_sensor_type;
+	sensor_info->SettleDelayMode = imgsensor_info.mipi_settle_delay_mode;
 	sensor_info->SensorOutputDataFormat = imgsensor_info.sensor_output_dataformat;
 
 	sensor_info->CaptureDelayFrame = imgsensor_info.cap_delay_frame; 
@@ -2781,7 +2781,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
     UINT32 *feature_return_para_32=(UINT32 *) feature_para;
     UINT32 *feature_data_32=(UINT32 *) feature_para;
     unsigned long long *feature_data=(unsigned long long *) feature_para;
-    unsigned long long *feature_return_para=(unsigned long long *) feature_para;
+    //unsigned long long *feature_return_para=(unsigned long long *) feature_para;
 
     SENSOR_WINSIZE_INFO_STRUCT *wininfo;
     MSDK_SENSOR_REG_INFO_STRUCT *sensor_reg_data=(MSDK_SENSOR_REG_INFO_STRUCT *) feature_para;

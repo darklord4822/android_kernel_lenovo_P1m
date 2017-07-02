@@ -58,7 +58,7 @@
 #define PROC_CAMERA_INFO "driver/camera_info"
 #define camera_info_size 128
 char mtk_ccm_name[camera_info_size] = {0};
-static unsigned int gDrvIndex;
+static unsigned int gDrvIndex = 0;
 
 static DEFINE_SPINLOCK(kdsensor_drv_lock);
 

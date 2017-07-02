@@ -65,6 +65,7 @@ static u32 strobe_Res;
 static u32 strobe_Timeus;
 static BOOL g_strobe_On;
 
+static int g_duty=-1;
 static int g_timeOutTimeMs;
 
 static DEFINE_MUTEX(g_strobeSem);
@@ -79,15 +80,24 @@ Functions
 *****************************************************************************/
 static void work_timeOutFunc(struct work_struct *data);
 
+
 int FL_Enable(void)
 {
-	PK_DBG(" FL_Enable line=%d\n", __LINE__);
-
+	if(g_duty==0)
+{
 	flashlight_gpio_set(FLASHLIGHT_PIN_HWEN, STATE_HIGH);
+	flashlight_gpio_set(FLASHLIGHT_PIN_TORCH, STATE_LOW);
+	PK_DBG("Modified FL_Enable(Torch), line=%d\n",__LINE__);
+}
+	else
+{
+	flashlight_gpio_set(FLASHLIGHT_PIN_HWEN, STATE_LOW);
 	flashlight_gpio_set(FLASHLIGHT_PIN_TORCH, STATE_HIGH);
-	return 0;
+	PK_DBG("Modified FL_Enable(Flash), line=%d\n",__LINE__);
 }
 
+    return 0;
+}
 
 
 int FL_Disable(void)
@@ -103,6 +113,7 @@ int FL_Disable(void)
 int FL_dim_duty(kal_uint32 duty)
 {
 	PK_DBG(" FL_dim_duty line=%d\n", __LINE__);
+	g_duty = duty;
 	return 0;
 }
 

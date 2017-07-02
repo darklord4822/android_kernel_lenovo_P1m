@@ -21,10 +21,6 @@ memory@00000000 {
 		};
 
 	};
-	
-	flashlight:flashlight {
-		compatible = "mediatek,mt6735-flashlight";
-	};
     tfa9897:tfa9897 {
 	   compatible = "mediatek,tfa9897";
 	  };
@@ -73,9 +69,10 @@ memory@00000000 {
 	led7:led@7 {
 		compatible = "mediatek,flash";
 		led_mode = <6>;
-		data = <0>;
+		data = <1>;
 		pwm_config = <0 0 0 0 0>;
 	};
+	
 	vibrator0:vibrator@0 {
 		compatible = "mediatek,vibrator";
 		vib_timer = <25>;
@@ -304,22 +301,21 @@ memory@00000000 {
 		};
 	};
 	camera_pins_cam_ldo0_0: cam@0 {
-	    pins_cmd_dat {
-			pins = <PINMUX_GPIO68__FUNC_GPIO68>;/*GPIO_SPI_MOSI_PIN*/
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO9__FUNC_GPIO9>;
 			slew-rate = <1>;
 			output-low;
 		};
 	};
 	camera_pins_cam_ldo0_1: cam@1 {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO68__FUNC_GPIO68>;/*GPIO_SPI_MOSI_PIN*/
+			pins = <PINMUX_GPIO9__FUNC_GPIO9>;
 			slew-rate = <1>;
 			output-high;
 		};
 	};
 	camera_pins_default: camdefault {
 	};
-
 };
 
 &kd_camera_hw1 {
@@ -417,6 +413,7 @@ memory@00000000 {
 		sd-uhs-sdr50;
 		sd-uhs-sdr104;
 		sd-uhs-ddr50;
+		non-removable;
 		pinctl = <&mmc1_pins_default>;
 		pinctl_sdr104 = <&mmc1_pins_sdr104>;
 		pinctl_sdr50 = <&mmc1_pins_sdr50>;
@@ -480,7 +477,7 @@ memory@00000000 {
 		ett-hs400-cells = <8>;
 		ett-hs400-default = <OFFSET_MSDC_PATCH_BIT0	MSDC_PB0_INT_DAT_LATCH_CK_SEL	0x0
 			OFFSET_MSDC_PATCH_BIT0		MSDC_PB0_CKGEN_MSDC_DLY_SEL		0x0
-			OFFSET_EMMC50_PAD_DS_TUNE	MSDC_EMMC50_PAD_DS_TUNE_DLY1	0x2
+			OFFSET_EMMC50_PAD_DS_TUNE	MSDC_EMMC50_PAD_DS_TUNE_DLY1	0x7
 			OFFSET_EMMC50_PAD_DS_TUNE	MSDC_EMMC50_PAD_DS_TUNE_DLY3	0x12
 			OFFSET_MSDC_PATCH_BIT1			MSDC_PB1_CMD_RSP_TA_CNTR	0x1
 			OFFSET_MSDC_IOCON		MSDC_IOCON_RSPL				0x1

@@ -656,10 +656,6 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 			status = "disabled";
 		};
 
-	audio_switch {
-		compatible = "mediatek,audio_switch";
-	};
-
 	};
 
 	bus {
@@ -1272,7 +1268,7 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 			interrupts = <GIC_SPI 144 IRQ_TYPE_LEVEL_LOW>;
 		};
 
-		audgpio:mt_soc_dl1_pcm@11220000 {
+		mt_soc_dl1_pcm@11220000 {
 			compatible = "mediatek,mt-soc-dl1-pcm";
 			reg = <0x11220000 0x1000>;
 			interrupts = <GIC_SPI 144 IRQ_TYPE_LEVEL_LOW>;
@@ -1776,15 +1772,9 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 			reg = <0x11006000 0x1000>;
 			interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
 		};
-
-		MTKSMARTPA@0x11220000 {
-			compatible = "mediatek,mtksmartpa";	
-			aud_ext_dacrst_gpio = <80 1>;
-			nxpws_gpio = <66 1>;
-			nxpclk_gpio = <68 1>;
-			nxpdatai_gpio = <78 1>;
-			nxpdatao_gpio = <67 1>;
-		    
+		
+		flashlight:flashlight {
+			compatible = "mediatek,mt6735-flashlight";		
 		};
 	};
 	lcm: lcm {
@@ -1800,11 +1790,6 @@ initrd=0x44000000,0x1000000 loglevel=8 androidboot.hardware=mt6735";
 	};
 
 /* sensor part */
-		/* lenovo-sw.lily8.2015-10-13.add begin */
-		ext_speaker_amp@0 {
-			compatible = "mediatek,ext_speaker_amp";
-		};
-		/* lenovo-sw.lily8,2015-10-13.add end */
 		hwmsensor@0 {
 			compatible = "mediatek,hwmsensor";
 		};

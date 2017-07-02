@@ -27,10 +27,9 @@
 #include <linux/fs.h>
 #include <asm/atomic.h>
 //#include <asm/system.h>
-#include <linux/xlog.h>
+//#include <linux/xlog.h>
 
 #include "kd_camera_typedef.h"
-#include "kd_camera_hw.h"
 #include "kd_imgsensor.h"
 #include "kd_imgsensor_define.h"
 #include "kd_imgsensor_errcode.h"
@@ -43,7 +42,7 @@
 #define LOG_2 LOG_INF("preview 1280*960@30fps,864Mbps/lane; video 1280*960@30fps,864Mbps/lane; capture 5M@30fps,864Mbps/lane\n")
 /****************************   Modify end    *******************************************/
 
-#define LOG_INF(format, args...)    xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
+#define LOG_INF(format, args...)	pr_debug(PFX "[%s] " format, __FUNCTION__, ##args)
 
 #define HI551_OTP_FUNCTION
 #ifdef HI551_OTP_FUNCTION
@@ -229,7 +228,7 @@ static kal_uint32 return_sensor_id(void)
 }
 static void set_max_framerate(UINT16 framerate,kal_bool min_framelength_en)
 {
-	kal_int16 dummy_line;
+	//kal_int16 dummy_line;
 	kal_uint32 frame_length = imgsensor.frame_length;
 	//unsigned long flags;
 
@@ -260,7 +259,7 @@ static void set_shutter(kal_uint16 shutter)
 {
     unsigned long flags;
     kal_uint16 realtime_fps = 0;
-    kal_uint32 frame_length = 0;
+    //kal_uint32 frame_length = 0;
     spin_lock_irqsave(&imgsensor_drv_lock, flags);
     imgsensor.shutter = shutter;
     spin_unlock_irqrestore(&imgsensor_drv_lock, flags);
@@ -3071,7 +3070,7 @@ write_cmos_sensor(0x0114, 0x05B2);		// y_output_size_h / l 1458
 // Sleep Off (Streaming On)
 write_cmos_sensor(0x0118, 0x0100);	//sleep Off
 }
-static void hs_video_setting(kal_uint16 currefps)
+static void hs_video_setting(void)
 {
 	write_cmos_sensor(0x0118, 0x0000);			// Sleep On
 	write_cmos_sensor(0x0032, 0x0701);		// byrscl_crtl1 / tyrscl_fifo_read_delay
@@ -3434,7 +3433,7 @@ static kal_uint32 hs_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
     imgsensor.dummy_pixel = 0;
     imgsensor.autoflicker_en = KAL_FALSE;
     spin_unlock(&imgsensor_drv_lock);
-    hs_video_setting(imgsensor.current_fps);
+    hs_video_setting();
 	//set_mirror_flip(sensor_config_data->SensorImageMirror);
     return ERROR_NONE;
 }    /*    hs_video   */
@@ -3793,7 +3792,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
     UINT32 *feature_return_para_32=(UINT32 *) feature_para;
     UINT32 *feature_data_32=(UINT32 *) feature_para;
     unsigned long long *feature_data=(unsigned long long *) feature_para;
-    unsigned long long *feature_return_para=(unsigned long long *) feature_para;
+    //unsigned long long *feature_return_para=(unsigned long long *) feature_para;
 
     SENSOR_WINSIZE_INFO_STRUCT *wininfo;
     MSDK_SENSOR_REG_INFO_STRUCT *sensor_reg_data=(MSDK_SENSOR_REG_INFO_STRUCT *) feature_para;

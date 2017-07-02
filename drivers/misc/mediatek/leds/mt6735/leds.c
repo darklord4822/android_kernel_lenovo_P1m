@@ -267,7 +267,7 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 					LEDS_DEBUG
 					    ("kernel:the backlight hw mode is BLS.\n");
 					break;
-				case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+				case MT65XX_LED_MODE_CUST_FLASH:
 					pled_dtsi[i].data =
 					    (long)flashlight_led_setby_gpio;
 					LEDS_DEBUG
@@ -912,7 +912,7 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 			bl_brightness_hal = level;
 		return ((cust_set_brightness) (cust->data)) (level);
 
-	case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+	case MT65XX_LED_MODE_CUST_FLASH:
 		if (strcmp(cust->name, "flash") == 0)
 		return ((cust_flashlight_brightness_set)(cust->data))(cust->name,level);
 	case MT65XX_LED_MODE_NONE:

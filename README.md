@@ -18,6 +18,5 @@
 12) And other
 13) Main Camera work (first revision)
 14) Flashlight
-15) Auto Focus (first revision)
-* Not working now:
-1) Front Camera (i dont know)
+15) Auto Focus (all revision)
+16) Front Camera (first revision)

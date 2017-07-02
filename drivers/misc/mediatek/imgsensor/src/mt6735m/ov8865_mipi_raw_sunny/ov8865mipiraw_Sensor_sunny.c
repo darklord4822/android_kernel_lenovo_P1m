@@ -29,10 +29,9 @@
 #include <linux/fs.h>
 #include <asm/atomic.h>
 //#include <asm/system.h>
-#include <linux/xlog.h>
+//#include <linux/xlog.h>
 
 #include "kd_camera_typedef.h"
-#include "kd_camera_hw.h"
 #include "kd_imgsensor.h"
 #include "kd_imgsensor_define.h" 
 #include "kd_imgsensor_errcode.h"
@@ -40,10 +39,7 @@
 #include "ov8865mipiraw_Sensor_sunny.h"
 
 #define PFX "OV8865_SUNNY"
-//#define LOG_WRN(format, args...) xlog_printk(ANDROID_LOG_WARN ,PFX, "[%S] " format, __FUNCTION__, ##args)
-//#defineLOG_INF(format, args...) xlog_printk(ANDROID_LOG_INFO ,PFX, "[%s] " format, __FUNCTION__, ##args)
-//#define LOG_DBG(format, args...) xlog_printk(ANDROID_LOG_DEBUG ,PFX, "[%S] " format, __FUNCTION__, ##args)
-#define LOG_INF(format, args...)	xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
+#define LOG_INF(format, args...)	pr_debug(PFX "[%s] " format, __FUNCTION__, ##args)
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 
@@ -743,7 +739,7 @@ static void set_dummy(void)
 
 static void set_max_framerate(UINT16 framerate,kal_bool min_framelength_en)
 {
-	kal_int16 dummy_line;
+	//kal_int16 dummy_line;
 	kal_uint32 frame_length = imgsensor.frame_length;
 
 	LOG_INF("framerate = %d, min framelength should enable? \n", framerate,min_framelength_en);
@@ -776,7 +772,7 @@ static void set_shutter(kal_uint16 shutter)
 {
     unsigned long flags;
     kal_uint16 realtime_fps = 0;
-    kal_uint32 frame_length = 0;
+    //kal_uint32 frame_length = 0;
     spin_lock_irqsave(&imgsensor_drv_lock, flags);
     imgsensor.shutter = shutter;
     spin_unlock_irqrestore(&imgsensor_drv_lock, flags);
@@ -1850,7 +1846,7 @@ static void normal_video_setting(kal_uint16 currefps)
 
 
 
-static void hs_video_setting(kal_uint16 currefps)
+static void hs_video_setting(void)
 {
 	LOG_INF("Enter!\n");
 
@@ -2429,7 +2425,7 @@ static kal_uint32 hs_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//imgsensor.current_fps = imgsensor_info.hs_video.max_framerate;;
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
-    hs_video_setting(imgsensor.current_fps);
+    hs_video_setting();
 	
 	return ERROR_NONE;
 }	/*	hs_video   */
@@ -2494,8 +2490,8 @@ static kal_uint32 get_info(MSDK_SCENARIO_ID_ENUM scenario_id,
 	sensor_info->SensorResetDelayCount = 5; /* not use */
 
 	sensor_info->SensroInterfaceType = imgsensor_info.sensor_interface_type;
-	//sensor_info->MIPIsensorType = imgsensor_info.mipi_sensor_type;
-	//sensor_info->SettleDelayMode = imgsensor_info.mipi_settle_delay_mode;
+	sensor_info->MIPIsensorType = imgsensor_info.mipi_sensor_type;
+	sensor_info->SettleDelayMode = imgsensor_info.mipi_settle_delay_mode;
 	sensor_info->SensorOutputDataFormat = imgsensor_info.sensor_output_dataformat;
 
 	sensor_info->CaptureDelayFrame = imgsensor_info.cap_delay_frame; 
@@ -2785,7 +2781,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
     UINT32 *feature_return_para_32=(UINT32 *) feature_para;
     UINT32 *feature_data_32=(UINT32 *) feature_para;
     unsigned long long *feature_data=(unsigned long long *) feature_para;
-    unsigned long long *feature_return_para=(unsigned long long *) feature_para;
+    //unsigned long long *feature_return_para=(unsigned long long *) feature_para;
 
     SENSOR_WINSIZE_INFO_STRUCT *wininfo;
     MSDK_SENSOR_REG_INFO_STRUCT *sensor_reg_data=(MSDK_SENSOR_REG_INFO_STRUCT *) feature_para;

@@ -34,6 +34,7 @@
 #define PK_XLOG_INFO(fmt, args...)
 #endif
 
+#define AEON_CAM_SUPPORT
 //#define GPIO_VCAMA_LDO
 //#define GPIO_VCAMD_LDO
 
@@ -536,11 +537,13 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
                 {
                     if(PowerOnList.PowerSeq[pwListIdx].PowerInfo[pwIdx].PowerType != VDD_None)
                     {
+					#ifdef AEON_CAM_SUPPORT //sanford.lin
                         if((PowerOnList.PowerSeq[pwListIdx].PowerInfo[0].PowerType == SensorId) && (PowerOnList.PowerSeq[pwListIdx].PowerInfo[0].Voltage != pinSetIdx))
 						{
 							PK_ERR("kdCISModulePowerOn %s is not %s\n",PowerOnList.PowerSeq[pwListIdx].SensorName, pinSetIdx ? "SUB_SENSOR":"MAIN_SENSOR");
 							return ((int)SensorIdx << 1); //goto _kdCISModulePowerOn_exit_;
 						}
+					#endif
 						if(hwpoweron(PowerOnList.PowerSeq[pwListIdx].PowerInfo[pwIdx],mode_name)==FALSE)
                             goto _kdCISModulePowerOn_exit_;
                     }
@@ -586,11 +589,13 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
                 {
                     if(PowerOnList.PowerSeq[pwListIdx].PowerInfo[pwIdx].PowerType != VDD_None)
                     {
+					#ifdef AEON_CAM_SUPPORT //sanford.lin
 					    if((PowerOnList.PowerSeq[pwListIdx].PowerInfo[0].PowerType == SensorId) && (PowerOnList.PowerSeq[pwListIdx].PowerInfo[0].Voltage != pinSetIdx))
 						{
 							PK_ERR("kdCISModulePowerOff %s is not %s\n",PowerOnList.PowerSeq[pwListIdx].SensorName,pinSetIdx ? "SUB_SENSOR":"MAIN_SENSOR");
 							return ((int)SensorIdx << 1); //goto _kdCISModulePowerOn_exit_;
 						}
+					#endif
                         if(hwpowerdown(PowerOnList.PowerSeq[pwListIdx].PowerInfo[pwIdx],mode_name)==FALSE)
                             goto _kdCISModulePowerOn_exit_;
                         if(pwIdx>0)

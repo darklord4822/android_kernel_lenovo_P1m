@@ -120,21 +120,17 @@ config TOUCHSCREEN_MTK_FT5X0X
 
 source "drivers/input/touchscreen/mediatek/ft5x0x/Kconfig"
 
-config TOUCHSCREEN_MTK_FTS5446
-	bool "FTS5446 for lenovo K52 driver"
-	depends on TOUCHSCREEN_MTK
-
-config TOUCHSCREEN_MTK_FOCALTECH
-	bool "ft5436 for Mediatek package"
+config TOUCHSCREEN_MTK_FT5446
+	bool "FT5446 for Mediatek package"
 	default n
 	help
-	  Say Y here if you have ft5436 touch panel.
+	  Say Y here if you have FT5446 touch panel.
 
 	  If unsure, say N.
 
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-source "drivers/input/touchscreen/mediatek/focaltech/Kconfig"
+source "drivers/input/touchscreen/mediatek/FT5446/Kconfig"
 
 endif

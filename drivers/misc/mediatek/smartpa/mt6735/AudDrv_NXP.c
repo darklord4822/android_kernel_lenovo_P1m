@@ -80,7 +80,7 @@
 #ifdef CONFIG_MTK_NXP_TFA9897
 #define I2C_MASTER_CLOCK       400
 #endif
-#define NXPEXTSPK_I2C_DEVNAME "smartpa_i2c"
+#define NXPEXTSPK_I2C_DEVNAME "tfa9897"
 
 /*****************************************************************************
 *           DEFINE AND CONSTANT
@@ -623,7 +623,7 @@ static struct file_operations AudDrv_nxpspk_fops =
 static struct miscdevice AudDrv_nxpspk_device =
 {
     .minor = MISC_DYNAMIC_MINOR,
-    .name = "smartpa_i2c",
+    .name = "tfa9897",
     .fops = &AudDrv_nxpspk_fops,
 };
 #else

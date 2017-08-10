@@ -152,6 +152,7 @@ extern LCM_DRIVER cpt_claa101fp01_dsi_vdo_8163_lcm_drv;
 extern LCM_DRIVER h070d_18dm_lcm_drv;
 extern LCM_DRIVER hx8394a_hd720_dsi_vdo_tianma_lcm_drv;
 extern LCM_DRIVER hx8394d_hd720_dsi_vdo_tianma_lcm_drv;
+extern LCM_DRIVER ili9881_hd720_dsi_vdo_yassy_lcm_drv;
 extern LCM_DRIVER cpt_clap070wp03xg_sn65dsi83_lcm_drv;
 extern LCM_DRIVER nt35520_hd720_tm_lcm_drv;
 extern LCM_DRIVER nt35520_hd720_boe_lcm_drv;

@@ -24,7 +24,8 @@ enum mt65xx_led_mode {
 	MT65XX_LED_MODE_PMIC,
 	MT65XX_LED_MODE_CUST_LCM,
 	MT65XX_LED_MODE_CUST_BLS_PWM,
-	MT65XX_LED_MODE_CUST_FLASH
+	MT65XX_LED_MODE_CUST_FLASH,
+	MT65XX_LED_MODE_CUST_RED,
 };
 
 /******************************************************************************
@@ -96,6 +97,24 @@ enum MT65XX_PMIC_ISINK_FSEL {
 #define BACKLIGHT_LEVEL_PWM_64_FIFO_MODE_SUPPORT 64
 #define BACKLIGHT_LEVEL_PWM_256_SUPPORT 256
 #define BACKLIGHT_LEVEL_PWM_MODE_CONFIG BACKLIGHT_LEVEL_PWM_256_SUPPORT
+
+long redled_setby_gpio(int level)
+{
+	mt_set_gpio_mode(GPIO_CHGFULL_EN_PIN, GPIO_CHGFULL_EN_PIN_M_GPIO);
+	mt_set_gpio_dir(GPIO_CHGFULL_EN_PIN, GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_CHGFULL_EN_PIN, GPIO_OUT_ZERO);
+
+	if (level == 0) {
+		mt_set_gpio_out(GPIO_CHGFULL_EN_PIN, GPIO_OUT_ONE);
+	} else if (level > 0) {
+		mt_set_gpio_out(GPIO_CHGFULL_EN_PIN, GPIO_OUT_ZERO);
+	} else {
+		mt_set_gpio_out(GPIO_CHGFULL_EN_PIN, GPIO_OUT_ONE);
+	}
+	return 0;
+}
+
+
 static inline unsigned int Cust_GetBacklightLevelSupport_byPWM(void)
 {
 	return BACKLIGHT_LEVEL_PWM_MODE_CONFIG;

@@ -23,7 +23,7 @@ memory@00000000 {
 	};
 	led0:led@0 {
 		compatible = "mediatek,red";
-		led_mode = <7>;
+		led_mode = <0>;
 		data = <1>;
 		pwm_config = <0 0 0 0 0>;
 	};

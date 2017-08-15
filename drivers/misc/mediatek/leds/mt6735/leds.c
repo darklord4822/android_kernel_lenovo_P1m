@@ -273,12 +273,6 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 					LEDS_DEBUG
 					    ("kernel:the flashlight hw mode is gpio.\n");
 					break;
-				case MT65XX_LED_MODE_CUST_RED:
-					pled_dtsi[i].data =
-					    (long)redled_setby_gpio;
-					LEDS_DEBUG
-					    ("kernel:the red hw mode is gpio.\n");
-					break;
 				default:
 					break;
 				}
